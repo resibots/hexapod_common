@@ -61,7 +61,7 @@ def check_hexapod_controller(conf):
 		res = conf.find_file('hexapod_controller_simple.hpp', includes_check)
 		conf.end_msg('ok')
 		conf.start_msg('Checking for hexapod_controller libs')
-		res = res and conf.find_file('libhexapod_controller_simple.so', libs_check)
+		res = res and conf.find_file('libhexapod_controller_simple.a', libs_check)
 		conf.end_msg('ok')
 		conf.env.INCLUDES_HEXAPOD_CONTROLLER = includes_check
 		conf.env.LIBPATH_HEXAPOD_CONTROLLER = libs_check
