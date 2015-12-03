@@ -4,9 +4,8 @@
 
 ## Authors
 
-- Maintainer: Konstantinos Chatzilygeroudis
-- Other contributors: Dorian Goepp, Jean-Baptiste Mouret
-- Original Author: Antoine Cully
+- Author/Maintainer: Konstantinos Chatzilygeroudis
+- Other contributors: Dorian Goepp, Jean-Baptiste Mouret, Antoine Cully
 
 ## Packages
 
