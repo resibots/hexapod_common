@@ -38,11 +38,11 @@ def configure(conf):
 
 
 def build(bld):
-    bld.shlib(features = 'cxx cxxshlib',
+    bld.stlib(features = 'cxx cxxstlib',
               source=' \
               hexapod_controller_simple.cpp',
               includes = '.',
               target='hexapod_controller_simple')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'hexapod_controller_simple.hpp')
-    bld.install_files('${PREFIX}/lib', 'build/libhexapod_controller_simple.so')
+    bld.install_files('${PREFIX}/lib', 'build/libhexapod_controller_simple.a')
