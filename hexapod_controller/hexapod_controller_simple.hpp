@@ -18,8 +18,8 @@ public:
     HexapodControllerSimple() {}
     HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs);
 
-    void set_controller(const std::vector<double>& ctrl);
-    std::vector<double> controller();
+    void set_parameters(const std::vector<double>& ctrl);
+    std::vector<double> parameters();
 
     void set_broken(const std::vector<int> broken_legs);
     std::vector<int> broken_legs();

@@ -2,7 +2,7 @@
 
 HexapodControllerSimple::HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs) : _broken_legs(broken_legs)
 {
-    set_controller(ctrl);
+    set_parameters(ctrl);
 }
 
 HexapodControllerSimple::array_t HexapodControllerSimple::_control_signal(double amplitude, double phase, double duty_cycle)
@@ -63,7 +63,7 @@ HexapodControllerSimple::array_t HexapodControllerSimple::_control_signal(double
     return final_command;
 }
 
-void HexapodControllerSimple::set_controller(const std::vector<double>& ctrl)
+void HexapodControllerSimple::set_parameters(const std::vector<double>& ctrl)
 {
     assert(ctrl.size() == 36);
 
@@ -101,7 +101,7 @@ void HexapodControllerSimple::set_controller(const std::vector<double>& ctrl)
     _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
 }
 
-std::vector<double> HexapodControllerSimple::controller()
+std::vector<double> HexapodControllerSimple::parameters()
 {
     return _controller;
 }
