@@ -1,7 +1,6 @@
 #include <iostream>
 #include <hexapod_planner_simple.hpp>
-
-typedef HexapodPlannerSimple::ActionSimple ActionSimple;
+#include <action_simple.hpp>
 
 int main()
 {
@@ -59,7 +58,7 @@ int main()
     start.y = 0;
     start.theta = 0;
 
-    HexapodPlannerSimple planner(actions, goal);
+    HexapodPlannerSimple<ActionSimple> planner(actions, goal);
 
     auto traj = planner.plan(start);
 
