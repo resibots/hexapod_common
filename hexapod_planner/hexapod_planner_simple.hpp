@@ -10,15 +10,15 @@
 class HexapodPlannerSimple {
 public:
     struct ActionSimple {
-        double x, y, theta, distance;
+        double x, y, theta, distance, cost;
         std::string id;
 
         std::shared_ptr<ActionSimple> parent;
 
         bool operator<(const ActionSimple& other) const
         {
-            double d1 = distance;
-            double d2 = other.distance;
+            double d1 = cost+distance;
+            double d2 = cost+other.distance;
             return d1 < d2;
         }
 
@@ -26,9 +26,16 @@ public:
         {
             double dx = x - other.x;
             double dy = y - other.y;
-            // distance squared is enough
-            double d = dx * dx + dy * dy;
+            double dth = theta - other.theta;
+            dth = std::atan2(std::sin(dth), std::cos(dth));
+            double d = dx * dx + dy * dy + dth*dth;
             return (d < 1e-2);
+        }
+
+        double cost_from(const ActionSimple& other) const
+        {
+            // simple cost
+            return 1.0;
         }
     };
 
@@ -44,11 +51,11 @@ public:
     void set_stop_iter(size_t stop_iter);
     size_t stop_iter();
 
-    std::vector<ActionSimple> plan(const ActionSimple& start);
+    std::vector<std::string> plan(const ActionSimple& start);
 
 protected:
     double _dist_from_goal(const ActionSimple& action);
-    std::vector<ActionSimple> _trajectory(const std::shared_ptr<ActionSimple>& end);
+    std::vector<std::string> _trajectory(const std::shared_ptr<ActionSimple>& end);
     std::vector<ActionSimple> _actions;
     ActionSimple _goal;
     size_t _stop_iter;

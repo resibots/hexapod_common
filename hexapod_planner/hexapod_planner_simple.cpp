@@ -35,7 +35,7 @@ size_t HexapodPlannerSimple::stop_iter()
     return _stop_iter;
 }
 
-std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::plan(const ActionSimple& start)
+std::vector<std::string> HexapodPlannerSimple::plan(const ActionSimple& start)
 {
     assert(_stop_iter > 0);
     assert(_actions.size() > 0);
@@ -48,9 +48,10 @@ std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::plan(const
 
     frontier.push_back(std::make_shared<HexapodPlannerSimple::ActionSimple>(start));
     frontier.back()->distance = _dist_from_goal(start);
+    frontier.back()->cost = 0.0;
     frontier.back()->parent = nullptr;
 
-    std::shared_ptr<HexapodPlannerSimple::ActionSimple> curr_best = nullptr, prev_best = nullptr;
+    std::shared_ptr<HexapodPlannerSimple::ActionSimple> curr_best = nullptr;
 
     for (size_t i = 0; i < _stop_iter; i++) {
         if (frontier.size() == 0) {
@@ -76,17 +77,17 @@ std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::plan(const
             auto tmp_state = std::make_shared<HexapodPlannerSimple::ActionSimple>(_actions[j]);
             tmp_state->x += curr_best->x;
             tmp_state->y += curr_best->y;
-            // TO-DO: angle needs fixing
+            // TO-DO: check if this angle is correct
             tmp_state->theta += curr_best->theta;
+            tmp_state->theta = std::atan2(std::sin(tmp_state->theta), std::cos(tmp_state->theta));
             tmp_state->distance = _dist_from_goal(*tmp_state);
+            tmp_state->cost = curr_best->cost+tmp_state->cost_from(*curr_best);
             tmp_state->parent = curr_best;
 
             // check if state is revisited before adding it to frontier
             if (std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(tmp_state)) == visited.end())
                 frontier.push_back(tmp_state);
         }
-
-        prev_best = curr_best;
     }
     return _trajectory(curr_best);
 }
@@ -95,24 +96,20 @@ double HexapodPlannerSimple::_dist_from_goal(const ActionSimple& action)
 {
     double diff_x = action.x - _goal.x;
     double diff_y = action.y - _goal.y;
+    // maybe could use theta too?
     // distance squared is enough
     return diff_x * diff_x + diff_y * diff_y;
 }
 
-std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::_trajectory(const std::shared_ptr<HexapodPlannerSimple::ActionSimple>& end)
+std::vector<std::string> HexapodPlannerSimple::_trajectory(const std::shared_ptr<HexapodPlannerSimple::ActionSimple>& end)
 {
-    std::vector<HexapodPlannerSimple::ActionSimple> traj;
+    std::vector<std::string> traj;
     auto tmp = end;
     while (tmp != nullptr) {
         auto a = *tmp;
-        if (a.parent) {
-            a.x -= a.parent->x;
-            a.y -= a.parent->y;
-            a.theta -= a.parent->theta;
-        }
-        else
+        if (a.parent == nullptr)
             break;
-        traj.push_back(a);
+        traj.push_back(a.id);
         tmp = tmp->parent;
     }
     std::reverse(traj.begin(), traj.end());
