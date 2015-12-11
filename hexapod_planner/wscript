@@ -45,3 +45,4 @@ def build(bld):
 
     bld.install_files('${PREFIX}/include/hexapod_planner', 'hexapod_planner_simple.hpp')
     bld.install_files('${PREFIX}/include/hexapod_planner', 'action_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'simple_env.hpp')

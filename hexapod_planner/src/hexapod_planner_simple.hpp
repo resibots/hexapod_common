@@ -8,11 +8,16 @@
 #include <memory>
 #include <algorithm>
 
-template <typename ActionSimple>
+template <typename ActionSimple, typename RobotDesc, typename EnvironmentDesc>
 class HexapodPlannerSimple {
 public:
     HexapodPlannerSimple() {}
-    HexapodPlannerSimple(const std::vector<ActionSimple> actions, const ActionSimple& goal, size_t stop_iter = 100) : _actions(actions), _goal(goal), _stop_iter(stop_iter) {}
+    HexapodPlannerSimple(const std::vector<ActionSimple> actions, const ActionSimple& goal, const EnvironmentDesc& environment, size_t stop_iter = 100) : _actions(actions),
+                                                                                                                                                          _goal(goal),
+                                                                                                                                                          _stop_iter(stop_iter),
+                                                                                                                                                          _environment(std::make_shared<EnvironmentDesc>(environment))
+    {
+    }
 
     void add_action(const ActionSimple& action)
     {
@@ -66,13 +71,16 @@ public:
             }
 
             std::sort(frontier.begin(), frontier.end(), ActionSimplePointerCompare());
+            frontier.erase(unique(frontier.begin(), frontier.end()), frontier.end());
 
             // get best state
             curr_best = frontier.front();
             frontier.erase(frontier.begin());
 
-            // if reached goal or arrived to a state we shouldn't
+            // if reached goal or arrived to a state we shouldn't (means we are doing some kind of circles)
             if (*curr_best == _goal || std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(curr_best)) != visited.end()) {
+                if (curr_best->parent)
+                    curr_best = curr_best->parent;
                 break;
             }
 
@@ -85,11 +93,14 @@ public:
                 tmp_state->distance = *tmp_state - _goal;
                 tmp_state->parent = curr_best;
 
+                RobotDesc robot;
+                robot.constructFromAction(*tmp_state);
                 // check if state is revisited before adding it to frontier
-                if (std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(tmp_state)) == visited.end())
+                if (std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(tmp_state)) == visited.end() && !_environment->collides(robot.bounding))
                     frontier.push_back(tmp_state);
             }
         }
+        // return best so far trajectory
         return _trajectory(curr_best);
     }
 
@@ -132,6 +143,7 @@ protected:
     std::vector<ActionSimple> _actions;
     ActionSimple _goal;
     size_t _stop_iter;
+    std::shared_ptr<EnvironmentDesc> _environment;
 };
 
 #endif

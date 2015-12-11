@@ -1,6 +1,7 @@
 #include <iostream>
 #include <hexapod_planner_simple.hpp>
 #include <action_simple.hpp>
+#include <simple_env.hpp>
 
 int main()
 {
@@ -55,10 +56,17 @@ int main()
 
     ActionSimple start;
     start.x = 0;
-    start.y = 0;
+    start.y = -0.25;
     start.theta = 0;
 
-    HexapodPlannerSimple<ActionSimple> planner(actions, goal);
+    EnvironmentSimple<ObstacleSimple> env;
+    ObstacleSimple obs1;
+    obs1.bounding.x = 2;
+    obs1.bounding.y = 2;
+    obs1.bounding.radius = 1;
+    env.add_obstacle(obs1);
+
+    HexapodPlannerSimple<ActionSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, goal, env);
 
     auto traj = planner.plan(start);
 
