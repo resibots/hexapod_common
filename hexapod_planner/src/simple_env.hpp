@@ -14,7 +14,7 @@ struct BoundingSimple {
         double dy = y - other.y;
         double d = dx * dx + dy * dy;
         double r = std::max(radius, other.radius);
-        return (d - r * r) < 1e-4;
+        return (d - 4 * r * r) < 1e-4;
     }
 
     template <typename ActionSimple>

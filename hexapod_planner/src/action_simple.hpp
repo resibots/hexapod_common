@@ -25,7 +25,7 @@ struct ActionSimple {
         tmp_action.theta = std::atan2(std::sin(tmp_action.theta), std::cos(tmp_action.theta));
         // This would have been overrided
         // tmp_action.distance = distance + other.distance;
-        tmp_action.cost = cost + tmp_action.cost_from(*this);
+        tmp_action.cost = cost + tmp_action.cost_from(other);
         // This would have been overrided
         // tmp_action->parent = std::make_shared<ActionSimple>(other);
         return tmp_action;

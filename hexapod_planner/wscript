@@ -8,16 +8,20 @@ srcdir = '.'
 blddir = 'build'
 
 from waflib.Build import BuildContext
+import sfml
 
 
 def options(opt):
     opt.load('compiler_cxx')
     opt.load('compiler_c')
-
+    opt.load('sfml')
 
 def configure(conf):
     conf.load('compiler_cxx')
     conf.load('compiler_c')
+    conf.load('sfml')
+
+    conf.check_sfml()
 
     if conf.env.CXX_NAME in ["icc", "icpc"]:
         common_flags = "-Wall -std=c++11"
@@ -41,6 +45,7 @@ def build(bld):
     bld.program(features = 'cxx',
                   source = 'src/test.cpp',
                   includes = '. ./src',
+                  uselib = 'SFML',
                   target = 'test_plain')
 
     bld.install_files('${PREFIX}/include/hexapod_planner', 'hexapod_planner_simple.hpp')
