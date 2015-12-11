@@ -44,13 +44,13 @@ std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::plan(const
     std::random_shuffle(_actions.begin(), _actions.end());
 
     std::vector<std::shared_ptr<HexapodPlannerSimple::ActionSimple>> frontier;
+    std::vector<std::shared_ptr<HexapodPlannerSimple::ActionSimple>> visited;
+
     frontier.push_back(std::make_shared<HexapodPlannerSimple::ActionSimple>(start));
     frontier.back()->distance = _dist_from_goal(start);
     frontier.back()->parent = nullptr;
 
     std::shared_ptr<HexapodPlannerSimple::ActionSimple> curr_best = nullptr, prev_best = nullptr;
-
-    std::vector<std::shared_ptr<HexapodPlannerSimple::ActionSimple>> visited;
 
     for (size_t i = 0; i < _stop_iter; i++) {
         if (frontier.size() == 0) {
@@ -63,9 +63,13 @@ std::vector<HexapodPlannerSimple::ActionSimple> HexapodPlannerSimple::plan(const
         curr_best = frontier.front();
         frontier.erase(frontier.begin());
 
-        if (_dist_from_goal(*curr_best) < 1e-2) {
-            return _trajectory(curr_best);
+        // if reached goal or arrived to a state we shouldn't
+        if (*curr_best == _goal || std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(curr_best)) != visited.end()) {
+            break;
         }
+
+        // mark state as visited
+        visited.push_back(curr_best);
 
         // expand frontier using available actions
         for (size_t j = 0; j < _actions.size(); j++) {
