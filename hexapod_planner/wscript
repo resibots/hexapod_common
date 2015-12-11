@@ -39,13 +39,12 @@ def configure(conf):
 
 def build(bld):
     bld.stlib(features = 'cxx cxxstlib',
-              source=' \
-              hexapod_planner_simple.cpp',
-              includes = '.',
+              source='src/hexapod_planner_simple.cpp',
+              includes = '. ./src',
               target='hexapod_planner_simple')
 
     bld.program(features = 'cxx',
-                  source = 'hexapod_planner_simple.cpp test.cpp',
+                  source = 'src/hexapod_planner_simple.cpp src/test.cpp',
                   includes = '. ./src',
                   target = 'test_plain')
 
