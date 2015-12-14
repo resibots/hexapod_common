@@ -13,6 +13,10 @@
 
 Here we keep the gait controllers (generators) that make our hexapods alive.
 
+### hexapod_planner
+
+Here we keep the (path) planners that produce series of actions or paths for our hexapods to follow.
+
 ## LICENSE
 
 [CeCILL]
