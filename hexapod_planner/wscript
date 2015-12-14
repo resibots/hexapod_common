@@ -21,6 +21,9 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_cxx')
     conf.load('compiler_c')
+
+    conf.get_env()['BUILD_GRAPHIC'] = False
+
     conf.load('sfml')
     conf.load('eigen')
 
@@ -46,10 +49,15 @@ def configure(conf):
 
 
 def build(bld):
+    d = []
+    if bld.get_env()['BUILD_GRAPHIC'] == True:
+        d = ['-DGRAPHIC']
+
     bld.program(features = 'cxx',
                   source = 'src/test.cpp',
                   includes = '. ./src',
                   uselib = 'SFML EIGEN',
+                  cxxflags = d,
                   target = 'test_plain')
 
     bld.install_files('${PREFIX}/include/hexapod_planner', 'hexapod_planner_simple.hpp')

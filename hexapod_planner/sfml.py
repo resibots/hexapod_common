@@ -29,18 +29,19 @@ def check_sfml(conf):
 	sfml_libs = ['sfml-audio', 'sfml-graphics', 'sfml-network', 'sfml-system', 'sfml-window']
 
 	try:
-		conf.start_msg('Checking for SFML includes')
+		conf.start_msg('Checking for SFML includes (optional)')
 		res = True
 		for f in sfml_includes:
 			res = res and conf.find_file('SFML/'+f, includes_check)
 		conf.end_msg('ok')
-		conf.start_msg('Checking for SFML libs')
+		conf.start_msg('Checking for SFML libs (optional)')
 		for f in sfml_libs:
 			res = res and conf.find_file('lib'+f+'.so', libs_check)
 		conf.end_msg('ok')
 		conf.env.INCLUDES_SFML = includes_check
 		conf.env.LIBPATH_SFML = libs_check
 		conf.env.LIB_SFML = sfml_libs
+		conf.get_env()['BUILD_GRAPHIC'] = True
 	except:
 		conf.end_msg('Not found', 'RED')
 		return

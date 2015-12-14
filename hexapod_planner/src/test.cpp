@@ -2,8 +2,11 @@
 #include <hexapod_planner_simple.hpp>
 #include <state_simple.hpp>
 #include <simple_env.hpp>
-#include <SFML/Graphics.hpp>
 #include <map>
+
+#ifdef GRAPHIC
+#include <SFML/Graphics.hpp>
+#endif
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -160,6 +163,7 @@ int main()
         std::cout << a.id << " " << a << std::endl;
     }
 
+#ifdef GRAPHIC
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Simple Action Planner");
     std::vector<sf::CircleShape> obstacles;
     double x, y;
@@ -241,6 +245,7 @@ int main()
             sleep(sf::seconds(0.05));
         }
     }
+#endif
 
     return 0;
 }
