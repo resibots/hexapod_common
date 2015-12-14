@@ -3,12 +3,15 @@
 #include <action_simple.hpp>
 #include <simple_env.hpp>
 #include <SFML/Graphics.hpp>
+#include <map>
 
 #define WIDTH 640
 #define HEIGHT 480
 #define ENTITY_SIZE 10
 // Uncomment to use rotations - they are not displaying correctly
 // #define USE_ROTATION
+// Comment for hexapod data
+#define SIMPLE_EXALPLE
 
 void get_pos(double x, double y, double& out_x, double& out_y)
 {
@@ -19,6 +22,8 @@ void get_pos(double x, double y, double& out_x, double& out_y)
 int main()
 {
     std::vector<ActionSimple> actions;
+    std::map<std::string, ActionSimple> acts;
+#ifdef SIMPLE_EXALPLE
     ActionSimple u, d, l, r, tcw, tccw;
     u.x = 0;
     u.y = 1;
@@ -38,11 +43,11 @@ int main()
     r.id = "right";
     tcw.x = 0;
     tcw.y = 0;
-    tcw.theta = 1.56;
+    tcw.theta = -1.56;
     tcw.id = "turn clockwise";
     tccw.x = 0;
     tccw.y = 0;
-    tccw.theta = -1.56;
+    tccw.theta = 1.56;
     tccw.id = "turn counter-clockwise";
     actions.push_back(u);
     actions.push_back(d);
@@ -61,16 +66,59 @@ int main()
     // diag2.id = "diagonal down left";
     // actions.push_back(diag1);
     // actions.push_back(diag2);
+    acts["up"] = u;
+    acts["down"] = d;
+    acts["left"] = l;
+    acts["right"] = r;
+    acts["turn clockwise"] = tcw;
+    acts["turn counter-clockwise"] = tccw;
+#else
+    ActionSimple t;
+    t.id = "fwd";
+    t.x = 0.21;
+    t.y = 0;
+    t.theta = 10.51*M_PI/180.0;
+    actions.push_back(t);
+    acts["fwd"] = t;
+    t.id = "back";
+    t.x = -0.25;
+    t.y = 0.01;
+    t.theta = -2.26*M_PI/180.0;
+    actions.push_back(t);
+    acts["back"] = t;
+    t.id = "turn-cw";
+    t.x = 0.01;
+    t.y = 0.02;
+    t.theta = -29.49*M_PI/180.0;
+    actions.push_back(t);
+    acts["turn-cw"] = t;
+    t.id = "turn-ccw";
+    t.x = -0.04;
+    t.y = 0.02;
+    t.theta = 41.64*M_PI/180.0;
+    actions.push_back(t);
+    acts["turn-ccw"] = t;
+#endif
 
     ActionSimple goal;
     goal.x = 5;
     goal.y = 5;
-    goal.theta = 1.56;
+    goal.theta = 0;
+    goal.transformation.setIdentity();
+    Eigen::Vector2d vec = {goal.x, goal.y};
+    goal.transformation.translate(vec);
+    goal.transformation.rotate(goal.theta);
+    goal.theta = std::atan2(goal.transformation.rotation()(1,0), goal.transformation.rotation()(0,0));
 
     ActionSimple start;
     start.x = 0;
-    start.y = -0.25;
+    start.y = 0.0;
     start.theta = 0;
+    start.transformation.setIdentity();
+    vec = {start.x, start.y};
+    start.transformation.translate(vec);
+    start.transformation.rotate(start.theta);
+    start.theta = std::atan2(start.transformation.rotation()(1,0), start.transformation.rotation()(0,0));
 
     EnvironmentSimple<ObstacleSimple> env;
     ObstacleSimple obs1;
@@ -85,12 +133,12 @@ int main()
     obs2.bounding.radius = 0.5;
     env.add_obstacle(obs2);
 
-    HexapodPlannerSimple<ActionSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, goal, env);
+    HexapodPlannerSimple<ActionSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, goal, env, 10000);
 
     auto traj = planner.plan(start);
 
     for (auto a : traj) {
-        std::cout << a << std::endl;
+        std::cout << a.id << std::endl;
     }
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Simple Action Planner");
@@ -107,37 +155,35 @@ int main()
         obstacles.push_back(obs);
     }
 
-#ifndef USE_ROTATION
-    sf::CircleShape target(ENTITY_SIZE);
-#else
+    sf::Transform robot_tf = sf::Transform::Identity, target_tf = sf::Transform::Identity;
+
     sf::CircleShape target(ENTITY_SIZE, 3);
-#endif
     target.setFillColor(sf::Color::Green);
     target.setOrigin(ENTITY_SIZE/2.0, ENTITY_SIZE/2.0);
     get_pos(goal.x, goal.y, x, y);
-    target.setPosition(x, y);
+    target_tf.translate(x, y);
 #ifdef USE_ROTATION
-    target.rotate(goal.theta*57.2958);
+    target_tf.rotate(-goal.theta*57.2958);
 #endif
 
-#ifndef USE_ROTATION
-    sf::CircleShape robot(ENTITY_SIZE);
-#else
     sf::CircleShape robot(ENTITY_SIZE, 3);
-#endif
     robot.setFillColor(sf::Color::Blue);
     robot.setOrigin(ENTITY_SIZE/2.0, ENTITY_SIZE/2.0);
     get_pos(start.y, start.y, x, y);
-    robot.setPosition(x, y);
+    robot_tf.translate(x, y);
 #ifdef USE_ROTATION
-    robot.rotate(start.theta*57.2958);
+    robot_tf.rotate(-start.theta*57.2958);
 #endif
 
     double curr_x = start.x, curr_y = start.y;
-#ifdef USE_ROTATION
+    double prev_x, prev_y;
+    get_pos(start.y, start.y, prev_x, prev_y);
+
     double curr_th = start.theta;
-#endif
+    double prev_th = curr_th;
+
     int i = 0;
+    bool first = true;
 
     while (window.isOpen())
     {
@@ -151,57 +197,33 @@ int main()
         window.clear(sf::Color::White);
         for(auto obs : obstacles)
             window.draw(obs);
-        window.draw(target);
-        window.draw(robot);
+        window.draw(target, target_tf);
+        window.draw(robot, robot_tf);
         window.display();
-        while(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {}
-        sleep(sf::seconds(0.2));
-        if(i<traj.size())
+        if (first)
+        {
+          while(!sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {}
+          first = false;
+        }
+
+        if (i<traj.size())
         {
             auto a = traj[i];
-            if(a == "up")
-            {
-                curr_x += u.x;
-                curr_y += u.y;
-                get_pos(curr_x, curr_y, x, y);
-                robot.setPosition(x,y);
-            }
-            else if(a == "down")
-            {
-                curr_x += d.x;
-                curr_y += d.y;
-                get_pos(curr_x, curr_y, x, y);
-                robot.setPosition(x,y);
-            }
-            else if(a == "right")
-            {
-                curr_x += r.x;
-                curr_y += r.y;
-                get_pos(curr_x, curr_y, x, y);
-                robot.setPosition(x,y);
-            }
-            else if(a == "left")
-            {
-                curr_x += l.x;
-                curr_y += l.y;
-                get_pos(curr_x, curr_y, x, y);
-                robot.setPosition(x,y);
-            }
+            double tmp = a.theta;
+            tmp = std::atan2(std::sin(tmp-prev_th), std::cos(tmp-prev_th));
+            curr_x = a.x;
+            curr_y = a.y;
+            get_pos(curr_x, curr_y, x, y);
+            robot_tf.translate(x - prev_x, y - prev_y);
+            prev_x = x;
+            prev_y = y;
 #ifdef USE_ROTATION
-            else if(a == "turn clockwise")
-            {
-                double tmp = curr_th + tcw.theta;
-                curr_th = std::atan2(std::sin(curr_th-tmp), std::cos(curr_th-tmp));
-                robot.rotate(-curr_th*57.2958);
-            }
-            else if(a == "turn counter-clockwise")
-            {
-                double tmp = curr_th + tccw.theta;
-                curr_th = std::atan2(std::sin(curr_th-tmp), std::cos(curr_th-tmp));
-                robot.rotate(-curr_th*57.2958);
-            }
+            robot_tf.rotate(-tmp*57.2958);
 #endif
+            curr_th = a.theta;
+            // std::cout<<curr_x<<" "<<curr_y<<" "<<curr_th<<std::endl;
             i++;
+            sleep(sf::seconds(0.05));
         }
     }
 

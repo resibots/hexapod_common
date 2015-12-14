@@ -12,10 +12,10 @@ template <typename ActionSimple, typename RobotDesc, typename EnvironmentDesc>
 class HexapodPlannerSimple {
 public:
     HexapodPlannerSimple() {}
-    HexapodPlannerSimple(const std::vector<ActionSimple> actions, const ActionSimple& goal, const EnvironmentDesc& environment, size_t stop_iter = 100) : _actions(actions),
-                                                                                                                                                          _goal(goal),
-                                                                                                                                                          _stop_iter(stop_iter),
-                                                                                                                                                          _environment(std::make_shared<EnvironmentDesc>(environment))
+    HexapodPlannerSimple(const std::vector<ActionSimple> actions, const ActionSimple& goal, const EnvironmentDesc& environment, size_t stop_iter = 5000) : _actions(actions),
+                                                                                                                                                           _goal(goal),
+                                                                                                                                                           _stop_iter(stop_iter),
+                                                                                                                                                           _environment(std::make_shared<EnvironmentDesc>(environment))
     {
     }
 
@@ -47,7 +47,7 @@ public:
         return _stop_iter;
     }
 
-    std::vector<std::string> plan(const ActionSimple& start)
+    std::vector<ActionSimple> plan(const ActionSimple& start)
     {
         assert(_stop_iter > 0);
         assert(_actions.size() > 0);
@@ -74,32 +74,39 @@ public:
             curr_best = frontier.front();
             frontier.erase(frontier.begin());
 
-            // if reached goal or we cannot really reach the goal
+            // if reached goal or we cannot really reach the goal precisely
             if (*curr_best == _goal)
                 break;
-            if(prev_best && prev_best->distance < _distance_tolerance && *prev_best < *curr_best)
-            {
-                curr_best = prev_best;
-                if(curr_best->parent)
-                    curr_best = curr_best->parent;
-                break;
-            }
+            // if (prev_best && prev_best->distance < _distance_tolerance && *prev_best < *curr_best) {
+            //     curr_best = prev_best;
+            //     if (curr_best->parent)
+            //         curr_best = curr_best->parent;
+            //     break;
+            // }
 
             // mark state as visited
             visited.push_back(curr_best);
 
             // expand frontier using available actions
             for (size_t j = 0; j < _actions.size(); j++) {
-                auto tmp_state = std::make_shared<ActionSimple>(_actions[j] + *curr_best);
+                auto tmp_state = std::make_shared<ActionSimple>(*curr_best + _actions[j]);
                 tmp_state->distance = *tmp_state - _goal;
                 tmp_state->parent = curr_best;
 
                 RobotDesc robot;
                 robot.constructFromAction(*tmp_state);
-                // check if state is revisited before adding it to frontier
-                if (std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(tmp_state)) == visited.end() && !_environment->collides(robot.bounding))
-                {
-                    frontier.push_back(tmp_state);
+                // check if state is revisited before adding it to frontier or if it collides with the environment
+                if (std::find_if(visited.begin(), visited.end(), ActionSimplePointerEqual(tmp_state)) == visited.end() && !_environment->collides(robot.bounding)) {
+                    double alt = tmp_state->distance + tmp_state->cost;
+                    auto it = std::find_if(frontier.begin(), frontier.end(), ActionSimplePointerEqual(tmp_state));
+                    if (it != frontier.end()) {
+                        double alt2 = (*it)->distance + (*it)->cost;
+                        if (alt < alt2) {
+                            *it = tmp_state;
+                        }
+                    }
+                    else
+                        frontier.push_back(tmp_state);
                 }
             }
 
@@ -130,15 +137,15 @@ protected:
         std::shared_ptr<ActionSimple> _ptr;
     };
 
-    std::vector<std::string> _trajectory(const std::shared_ptr<ActionSimple>& end)
+    std::vector<ActionSimple> _trajectory(const std::shared_ptr<ActionSimple>& end)
     {
-        std::vector<std::string> traj;
+        std::vector<ActionSimple> traj;
         auto tmp = end;
         while (tmp != nullptr) {
             auto a = *tmp;
             if (a.parent == nullptr)
                 break;
-            traj.push_back(a.id);
+            traj.push_back(a);
             tmp = tmp->parent;
         }
         std::reverse(traj.begin(), traj.end());
