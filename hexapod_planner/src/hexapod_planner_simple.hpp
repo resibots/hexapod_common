@@ -13,10 +13,9 @@ template <typename StateSimple, typename RobotDesc, typename EnvironmentDesc>
 class HexapodPlannerSimple {
 public:
     HexapodPlannerSimple() {}
-    HexapodPlannerSimple(const std::vector<StateSimple> actions, const StateSimple& goal, const EnvironmentDesc& environment, size_t stop_iter = 2000) : _actions(actions),
-                                                                                                                                                         _goal(goal),
-                                                                                                                                                         _stop_iter(stop_iter),
-                                                                                                                                                         _environment(std::make_shared<EnvironmentDesc>(environment))
+    HexapodPlannerSimple(const std::vector<StateSimple> actions, const EnvironmentDesc& environment, size_t stop_iter = 2000) : _actions(actions),
+                                                                                                                                _stop_iter(stop_iter),
+                                                                                                                                _environment(std::make_shared<EnvironmentDesc>(environment))
     {
     }
 
@@ -30,10 +29,6 @@ public:
         return _actions;
     }
 
-    void set_goal(const StateSimple& goal)
-    {
-        _goal = goal;
-    }
     StateSimple goal()
     {
         return _goal;
@@ -109,10 +104,11 @@ public:
         _states.erase(std::unique(_states.begin(), _states.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), _states.end());
     }
 
-    std::vector<StateSimple> plan(const StateSimple& start, bool re_expand = false)
+    std::vector<StateSimple> plan(const StateSimple& start, const StateSimple& goal, bool re_expand = false)
     {
         assert(_stop_iter > 0);
         assert(_actions.size() > 0);
+        _goal = goal;
 
         if (_states.size() == 0 || re_expand)
             expand_states(start);

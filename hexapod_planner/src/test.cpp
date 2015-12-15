@@ -155,9 +155,9 @@ int main()
     env.add_obstacle(obs2);
 #endif
 
-    HexapodPlannerSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, goal, env);
+    HexapodPlannerSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, env);
 
-    auto traj = planner.plan(start);
+    auto traj = planner.plan(start, goal);
 
     for (auto a : traj) {
         std::cout << a.id << " " << a << std::endl;
