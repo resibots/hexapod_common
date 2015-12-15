@@ -42,7 +42,7 @@ def options(opt):
 	opt.add_option('--planner', type='string', help='path to planner', dest='planner')
 
 @conf
-def check_hexapod_controller(conf):
+def check_hexapod_planner(conf):
 	includes_check = ['/usr/local/include/hexapod_planner', '/usr/include/hexapod_planner']
 
 	# You can customize where you want to check
