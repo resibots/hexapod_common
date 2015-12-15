@@ -60,6 +60,6 @@ def build(bld):
                   cxxflags = d,
                   target = 'test_plain')
 
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'hexapod_planner_simple.hpp')
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'action_simple.hpp')
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'simple_env.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/hexapod_planner_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/state_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/simple_env.hpp')
