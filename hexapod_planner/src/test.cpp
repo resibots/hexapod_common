@@ -157,10 +157,16 @@ int main()
 #endif
 
     auto graph = std::make_shared<GraphSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>>>();
-    std::string graph_file = "example_graphs/test.dat";
+    std::string graph_file = "example_graphs/test";
 #ifndef SIMPLE_EXALPLE
-    graph_file = "example_graphs/test_robot.dat";
+    graph_file = "example_graphs/test_robot";
 #endif
+
+#ifndef OBSTACLES
+    graph_file += "_no_obs";
+#endif
+
+    graph_file += ".dat";
 
     // graph->expand_nodes(env, actions, start, 5000);
     // graph->save_to_file(graph_file);
@@ -172,7 +178,7 @@ int main()
     auto traj = planner.plan(start, goal);
 
     for (auto a : traj) {
-        std::cout << a << std::endl;
+        std::cout << a.id << " : " << a << std::endl;
     }
 
 #ifdef GRAPHIC

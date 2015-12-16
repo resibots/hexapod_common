@@ -93,6 +93,9 @@ protected:
             auto a = *tmp;
             if (a.parent == nullptr)
                 break;
+            auto it = std::find_if(a.parent->children.begin(), a.parent->children.end(), typename StateSimple::PointerEqual(tmp));
+            if (it != a.parent->children.end())
+                a.id = a.parent->actions[std::distance(a.parent->children.begin(), it)];
             traj.push_back(a);
             tmp = tmp->parent;
         }
@@ -117,7 +120,7 @@ protected:
 
     StateSimple _goal;
     std::shared_ptr<Graph> _graph;
-    static constexpr double _distance_tolerance = 0.2;
+    static constexpr double _distance_tolerance = 0.01;
 };
 
 #endif

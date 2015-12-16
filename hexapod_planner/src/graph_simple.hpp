@@ -71,6 +71,7 @@ struct GraphSimple {
             for (size_t j = 0; j < _nodes[i]->children.size(); j++) {
                 auto it = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(_nodes[i]->children[j]));
                 (*_log_file) << std::distance(_nodes.begin(), it) << " ";
+                (*_log_file) << _nodes[i]->actions[j] << " ";
             }
             (*_log_file) << std::endl;
         }
@@ -89,33 +90,30 @@ struct GraphSimple {
             (*_log_file) >> tmp_node >> ch_size;
             auto tmp_ptr = std::make_shared<StateSimple>(tmp_node);
             _nodes.push_back(tmp_ptr);
+            tmp_ptr->children.clear();
+            tmp_ptr->actions.clear();
             children.push_back(std::vector<int>());
             for (size_t j = 0; j < ch_size; j++) {
                 size_t tmp_child;
                 (*_log_file) >> tmp_child;
+                std::string id;
+                (*_log_file) >> id;
                 children[i].push_back(tmp_child);
+                _nodes[i]->actions.push_back(id);
             }
         }
-
-        int s = 0;
 
         for (size_t i = 0; i < node_size; i++) {
             _nodes[i]->children.clear();
             for (size_t j = 0; j < children[i].size(); j++) {
                 if (children[i][j] < node_size)
                     _nodes[i]->children.push_back(_nodes[children[i][j]]);
-                else
-                    s++;
             }
         }
 
         _nodes.erase(std::unique(_nodes.begin(), _nodes.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), _nodes.end());
-
-        std::cout << "Read " << _nodes.size() << " nodes!" << std::endl;
-        std::cout << "Children not in nodes: " << s << std::endl;
     }
 
-    // ERROR IN THIS FUNCTION
     void expand_nodes(const std::shared_ptr<EnvironmentDesc>& environment, const std::vector<StateSimple>& actions, const StateSimple& start, size_t stop_iter)
     {
         assert(stop_iter > 0);
@@ -149,6 +147,7 @@ struct GraphSimple {
             // record state
             _nodes.push_back(curr);
             curr->children.clear();
+            curr->actions.clear();
 
             // expand using available actions
             for (size_t j = 0; j < actions.size(); j++) {
@@ -169,6 +168,7 @@ struct GraphSimple {
                 bool collides = environment->collides(robot.bounding);
                 if (std::find_if(curr->children.begin(), curr->children.end(), typename StateSimple::PointerEqual(tmp_state)) == curr->children.end() && !collides) {
                     curr->children.push_back(tmp_state);
+                    curr->actions.push_back(actions[j].id);
                 }
 
                 // check if state is revisited before adding it to frontier or if it collides with the environment
@@ -184,6 +184,7 @@ struct GraphSimple {
                 auto it = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(child));
                 if (it == _nodes.end()) {
                     _nodes[i]->children.erase(_nodes[i]->children.begin() + j);
+                    _nodes[i]->actions.erase(_nodes[i]->actions.begin() + j);
                     j--;
                 }
             }

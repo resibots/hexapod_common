@@ -6,11 +6,12 @@
 
 struct StateSimple {
     typedef Eigen::Transform<double, 2, Eigen::Affine> transform_t;
-    double x, y, theta, f_score, g_score;
     std::string id;
+    double x, y, theta, f_score, g_score;
     transform_t transformation;
 
     std::vector<std::shared_ptr<StateSimple>> children;
+    std::vector<std::string> actions;
     std::shared_ptr<StateSimple> parent;
 
     struct PointerCompare {
@@ -39,13 +40,12 @@ struct StateSimple {
         double diff_y = y - other.y;
         double diff_th = theta - other.theta;
         diff_th = std::atan2(std::sin(diff_th), std::cos(diff_th));
-        return std::sqrt(diff_x * diff_x + diff_y * diff_y + diff_th * diff_th);
+        return std::sqrt(diff_x * diff_x + diff_y * diff_y); // + diff_th * diff_th);
     }
 
     StateSimple operator+(const StateSimple& other)
     {
         StateSimple tmp_action = *this;
-        tmp_action.id = other.id;
 
         Eigen::Vector2d vec{other.x, other.y};
         tmp_action.transformation.translate(vec);
@@ -84,7 +84,6 @@ std::ostream& operator<<(std::ostream& os, const StateSimple& obj)
 {
     // os << obj.x << " " << obj.y << " " << obj.theta << " f: " << obj.f_score << " g: " << obj.g_score;
     std::stringstream tr, rot;
-    tr << obj.id << " ";
     tr << obj.transformation.translation();
     std::string t, r;
     t = tr.str();
@@ -99,12 +98,8 @@ std::ostream& operator<<(std::ostream& os, const StateSimple& obj)
 std::istream& operator>>(std::istream& is, StateSimple& obj)
 {
     double x, y, r00, r01, r10, r11;
-    std::string id;
-    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::getline(is, id, ' ');
     is >> x >> y >> r00 >> r01 >> r10 >> r11;
 
-    obj.id = id;
     obj.transformation.setIdentity();
     obj.transformation.translation()[0] = x;
     obj.transformation.translation()[1] = y;
