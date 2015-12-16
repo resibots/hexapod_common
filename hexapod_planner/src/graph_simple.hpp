@@ -34,7 +34,7 @@ struct GraphSimple {
         std::shared_ptr<std::ifstream> _log_file = std::make_shared<std::ifstream>(name.c_str());
         size_t node_size;
         (*_log_file) >> node_size;
-        std::vector<std::vector<int>> children;
+        std::vector<std::vector<size_t>> children;
         for (size_t i = 0; i < node_size; i++) {
             StateSimple tmp_node;
             size_t ch_size;
@@ -43,7 +43,7 @@ struct GraphSimple {
             _nodes.push_back(tmp_ptr);
             tmp_ptr->children.clear();
             tmp_ptr->actions.clear();
-            children.push_back(std::vector<int>());
+            children.push_back(std::vector<size_t>());
             for (size_t j = 0; j < ch_size; j++) {
                 size_t tmp_child;
                 (*_log_file) >> tmp_child;
