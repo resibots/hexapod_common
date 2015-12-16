@@ -11,55 +11,6 @@ template <typename StateSimple, typename RobotDesc, typename EnvironmentDesc>
 struct GraphSimple {
     std::vector<std::shared_ptr<StateSimple>> _nodes;
 
-    // void save_to_file(const std::string& name)
-    // {
-    //     assert(_nodes.size() > 0);
-    //     std::shared_ptr<std::ofstream> _log_file = std::make_shared<std::ofstream>(name.c_str());
-    //     (*_log_file) << _nodes.size() << std::endl;
-    //     for (size_t i = 0; i < _nodes.size(); i++) {
-    //         (*_log_file) << *_nodes[i] << " ";
-    //         (*_log_file) << _nodes[i]->children.size() << " ";
-    //         for (size_t j = 0; j < _nodes[i]->children.size(); j++) {
-    //             (*_log_file) << *_nodes[i]->children[j] << " ";
-    //         }
-    //         (*_log_file) << std::endl;
-    //     }
-    // }
-    //
-    // void load_from_file(const std::string& name)
-    // {
-    //     _nodes.clear();
-    //     std::shared_ptr<std::ifstream> _log_file = std::make_shared<std::ifstream>(name.c_str());
-    //     size_t node_size;
-    //     (*_log_file) >> node_size;
-    //     for (size_t i = 0; i < node_size; i++) {
-    //         StateSimple tmp_node;
-    //         size_t ch_size;
-    //         (*_log_file) >> tmp_node >> ch_size;
-    //         auto tmp_ptr = std::make_shared<StateSimple>(tmp_node);
-    //         auto it = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(tmp_ptr));
-    //         if (it == _nodes.end())
-    //             _nodes.push_back(tmp_ptr);
-    //         else
-    //             tmp_ptr = *it;
-    //         for (size_t j = 0; j < ch_size; j++) {
-    //             StateSimple tmp_child;
-    //             (*_log_file) >> tmp_child;
-    //             auto ch_ptr = std::make_shared<StateSimple>(tmp_child);
-    //             auto ch_it = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(ch_ptr));
-    //             if (ch_it == _nodes.end())
-    //                 _nodes.push_back(ch_ptr);
-    //             else
-    //                 ch_ptr = *ch_it;
-    //             tmp_ptr->children.push_back(ch_ptr);
-    //         }
-    //     }
-    //
-    //     _nodes.erase(std::unique(_nodes.begin(), _nodes.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), _nodes.end());
-    //
-    //     std::cout << "Read " << _nodes.size() << " nodes!" << std::endl;
-    // }
-
     void save_to_file(const std::string& name)
     {
         assert(_nodes.size() > 0);
@@ -156,6 +107,7 @@ struct GraphSimple {
                 tmp_state->g_score = std::numeric_limits<double>::infinity();
                 auto it = std::find_if(frontier.begin(), frontier.end(), typename StateSimple::PointerEqual(tmp_state));
                 auto it2 = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(tmp_state));
+                // updating pointer if needed
                 if (it != frontier.end() && it2 != _nodes.end()) {
                     tmp_state = *it2;
                     *it = *it2;
@@ -178,6 +130,7 @@ struct GraphSimple {
             }
         }
 
+        // remove children that are not in the _nodes - TO-DO: maybe we should add them to the nodes?
         for (size_t i = 0; i < _nodes.size(); i++) {
             for (size_t j = 0; j < _nodes[i]->children.size(); j++) {
                 auto child = _nodes[i]->children[j];
