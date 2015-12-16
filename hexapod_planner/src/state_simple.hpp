@@ -1,6 +1,7 @@
 #ifndef HEXAPOD_PLANNER_STATE_SIMPLE_HPP
 #define HEXAPOD_PLANNER_STATE_SIMPLE_HPP
 
+#include <algorithm>
 #include <Eigen/Geometry>
 
 struct StateSimple {
@@ -11,6 +12,26 @@ struct StateSimple {
 
     std::vector<std::shared_ptr<StateSimple>> children;
     std::shared_ptr<StateSimple> parent;
+
+    struct PointerCompare {
+        bool operator()(const std::shared_ptr<StateSimple>& l, const std::shared_ptr<StateSimple>& r)
+        {
+            return *l < *r;
+        }
+    };
+
+    struct PointerEqual {
+        PointerEqual(const std::shared_ptr<StateSimple>& ptr)
+        {
+            _ptr = ptr;
+        }
+        bool operator()(const std::shared_ptr<StateSimple>& l)
+        {
+            return *l == *_ptr;
+        }
+
+        std::shared_ptr<StateSimple> _ptr;
+    };
 
     double operator-(const StateSimple& other) const
     {
@@ -61,8 +82,42 @@ struct StateSimple {
 
 std::ostream& operator<<(std::ostream& os, const StateSimple& obj)
 {
-    os << obj.x << " " << obj.y << " " << obj.theta << " f: " << obj.f_score << " g: " << obj.g_score;
+    // os << obj.x << " " << obj.y << " " << obj.theta << " f: " << obj.f_score << " g: " << obj.g_score;
+    std::stringstream tr, rot;
+    tr << obj.id << " ";
+    tr << obj.transformation.translation();
+    std::string t, r;
+    t = tr.str();
+    std::replace(t.begin(), t.end(), '\n', ' ');
+    rot << obj.transformation.rotation();
+    r = rot.str();
+    std::replace(r.begin(), r.end(), '\n', ' ');
+    os << t << " " << r;
     return os;
+}
+
+std::istream& operator>>(std::istream& is, StateSimple& obj)
+{
+    double x, y, r00, r01, r10, r11;
+    std::string id;
+    is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(is, id, ' ');
+    is >> x >> y >> r00 >> r01 >> r10 >> r11;
+
+    obj.id = id;
+    obj.transformation.setIdentity();
+    obj.transformation.translation()[0] = x;
+    obj.transformation.translation()[1] = y;
+    obj.transformation.linear()(0, 0) = r00;
+    obj.transformation.linear()(0, 1) = r01;
+    obj.transformation.linear()(1, 0) = r10;
+    obj.transformation.linear()(1, 1) = r11;
+
+    obj.theta = std::atan2(obj.transformation.rotation()(1, 0), obj.transformation.rotation()(0, 0));
+    obj.x = obj.transformation.translation()[0];
+    obj.y = obj.transformation.translation()[1];
+
+    return is;
 }
 
 #endif
