@@ -9,24 +9,12 @@
 #include <algorithm>
 #include <limits>
 
-template <typename StateSimple, typename RobotDesc, typename EnvironmentDesc>
+template <typename StateSimple, typename Graph>
 class HexapodPlannerSimple {
 public:
     HexapodPlannerSimple() {}
-    HexapodPlannerSimple(const std::vector<StateSimple> actions, const EnvironmentDesc& environment, size_t stop_iter = 2000) : _actions(actions),
-                                                                                                                                _stop_iter(stop_iter),
-                                                                                                                                _environment(std::make_shared<EnvironmentDesc>(environment))
+    HexapodPlannerSimple(const std::shared_ptr<Graph>& graph) : _graph(graph)
     {
-    }
-
-    void add_action(const StateSimple& action)
-    {
-        _actions.push_back(action);
-    }
-
-    std::vector<StateSimple> actions()
-    {
-        return _actions;
     }
 
     StateSimple goal()
@@ -34,102 +22,33 @@ public:
         return _goal;
     }
 
-    void set_stop_iter(size_t stop_iter)
+    std::vector<StateSimple> plan(const StateSimple& start, const StateSimple& goal)
     {
-        _stop_iter = stop_iter;
-    }
-    size_t stop_iter()
-    {
-        return _stop_iter;
-    }
-
-    void expand_states(const StateSimple& start)
-    {
-        assert(_stop_iter > 0);
-        assert(_actions.size() > 0);
-
-        _states.clear();
-
-        std::vector<std::shared_ptr<StateSimple>> frontier;
-        std::shared_ptr<StateSimple> curr = nullptr;
-
-        frontier.push_back(std::make_shared<StateSimple>(start));
-        frontier.back()->f_score = start - _goal;
-        frontier.back()->g_score = 0.0;
-        frontier.back()->parent = nullptr;
-        frontier.back()->children.clear();
-
-        for (size_t i = 0; i < _stop_iter; i++) {
-            if (frontier.size() == 0) {
-                break;
-            }
-
-            frontier.erase(std::unique(frontier.begin(), frontier.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), frontier.end());
-
-            // get one state
-            curr = frontier.front();
-            frontier.erase(frontier.begin());
-
-            if (std::find_if(_states.begin(), _states.end(), StateSimplePointerEqual(curr)) != _states.end()) {
-                continue;
-            }
-
-            // record state
-            _states.push_back(curr);
-            curr->children.clear();
-
-            // expand using available actions
-            for (size_t j = 0; j < _actions.size(); j++) {
-                auto tmp_state = std::make_shared<StateSimple>(*curr + _actions[j]);
-                tmp_state->f_score = std::numeric_limits<double>::infinity();
-                tmp_state->g_score = std::numeric_limits<double>::infinity();
-                auto it = std::find_if(_states.begin(), _states.end(), StateSimplePointerEqual(tmp_state));
-                if (it != _states.end())
-                    tmp_state = *it;
-                if (std::find_if(curr->children.begin(), curr->children.end(), StateSimplePointerEqual(tmp_state)) == curr->children.end()) {
-                    curr->children.push_back(tmp_state);
-                }
-                else
-                    continue;
-
-                RobotDesc robot;
-                robot.constructFromAction(*tmp_state);
-                // check if state is revisited before adding it to frontier or if it collides with the environment
-                if (std::find_if(frontier.begin(), frontier.end(), StateSimplePointerEqual(tmp_state)) == frontier.end() && !_environment->collides(robot.bounding)) {
-                    frontier.push_back(tmp_state);
-                }
-            }
-        }
-
-        _states.erase(std::unique(_states.begin(), _states.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), _states.end());
-    }
-
-    std::vector<StateSimple> plan(const StateSimple& start, const StateSimple& goal, bool re_expand = false)
-    {
-        assert(_stop_iter > 0);
-        assert(_actions.size() > 0);
+        assert(_graph->_nodes.size() > 0);
         _goal = goal;
-
-        if (_states.size() == 0 || re_expand)
-            expand_states(start);
-
-        assert(_states.size() > 0);
-
-        std::cout << "Expanded " << _states.size() << " states!" << std::endl;
 
         std::vector<std::shared_ptr<StateSimple>> closed_set, open_set;
         std::shared_ptr<StateSimple> curr_best = nullptr;
 
-        if (std::find_if(_states.begin(), _states.end(), StateSimplePointerEqual(std::make_shared<StateSimple>(_goal))) == _states.end()) {
+        if (std::find_if(_graph->_nodes.begin(), _graph->_nodes.end(), typename StateSimple::PointerEqual(std::make_shared<StateSimple>(_goal))) == _graph->_nodes.end()) {
             std::cout << "Goal cannot be reached... Updating it to nearest state.." << std::endl;
             _update_goal();
             std::cout << "New goal: " << _goal << std::endl;
         }
 
-        open_set.push_back(_states[0]);
+        auto it = std::find_if(_graph->_nodes.begin(), _graph->_nodes.end(), typename StateSimple::PointerEqual(std::make_shared<StateSimple>(start)));
+
+        if (it == _graph->_nodes.end()) {
+            std::cout << "Start node not in graph!" << std::endl;
+            return _trajectory(nullptr);
+        }
+
+        (*it)->f_score = *(*it) - _goal;
+        (*it)->g_score = 0.0;
+        open_set.push_back(*it);
 
         while (open_set.size() > 0) {
-            std::sort(open_set.begin(), open_set.end(), StateSimplePointerCompare());
+            std::sort(open_set.begin(), open_set.end(), typename StateSimple::PointerCompare());
             open_set.erase(std::unique(open_set.begin(), open_set.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), open_set.end());
 
             // get best state
@@ -146,11 +65,11 @@ public:
 
             for (size_t j = 0; j < curr_best->children.size(); j++) {
                 auto neighbor = curr_best->children[j];
-                if (std::find_if(closed_set.begin(), closed_set.end(), StateSimplePointerEqual(neighbor)) != closed_set.end())
+                if (std::find_if(closed_set.begin(), closed_set.end(), typename StateSimple::PointerEqual(neighbor)) != closed_set.end())
                     continue;
 
                 double tentative_cost = curr_best->g_score + neighbor->cost_from(*curr_best);
-                if (std::find_if(open_set.begin(), open_set.end(), StateSimplePointerEqual(neighbor)) == open_set.end())
+                if (std::find_if(open_set.begin(), open_set.end(), typename StateSimple::PointerEqual(neighbor)) == open_set.end())
                     open_set.push_back(neighbor);
                 else if (tentative_cost >= neighbor->g_score)
                     continue;
@@ -166,26 +85,6 @@ public:
     }
 
 protected:
-    struct StateSimplePointerCompare {
-        bool operator()(const std::shared_ptr<StateSimple>& l, const std::shared_ptr<StateSimple>& r)
-        {
-            return *l < *r;
-        }
-    };
-
-    struct StateSimplePointerEqual {
-        StateSimplePointerEqual(const std::shared_ptr<StateSimple>& ptr)
-        {
-            _ptr = ptr;
-        }
-        bool operator()(const std::shared_ptr<StateSimple>& l)
-        {
-            return *l == *_ptr;
-        }
-
-        std::shared_ptr<StateSimple> _ptr;
-    };
-
     std::vector<StateSimple> _trajectory(const std::shared_ptr<StateSimple>& end)
     {
         std::vector<StateSimple> traj;
@@ -194,6 +93,9 @@ protected:
             auto a = *tmp;
             if (a.parent == nullptr)
                 break;
+            auto it = std::find_if(a.parent->children.begin(), a.parent->children.end(), typename StateSimple::PointerEqual(tmp));
+            if (it != a.parent->children.end())
+                a.id = a.parent->actions[std::distance(a.parent->children.begin(), it)];
             traj.push_back(a);
             tmp = tmp->parent;
         }
@@ -203,23 +105,22 @@ protected:
 
     void _update_goal()
     {
-        assert(_states.size() > 0);
-        std::vector<std::shared_ptr<StateSimple>> states = _states;
-        for (size_t i = 0; i < _states.size(); i++)
-            states[i]->f_score = *_states[i] - _goal;
-        std::sort(states.begin(), states.end(), StateSimplePointerCompare());
-        _goal = *states.front();
+        assert(_graph->_nodes.size() > 0);
+        std::vector<std::shared_ptr<StateSimple>> states = _graph->_nodes;
+        for (size_t i = 0; i < _graph->_nodes.size(); i++)
+            states[i]->f_score = *_graph->_nodes[i] - _goal;
+        std::sort(states.begin(), states.end(), typename StateSimple::PointerCompare());
         for (size_t i = 0; i < states.size(); i++)
             states[i]->f_score = std::numeric_limits<double>::infinity();
-        _states.front()->f_score = 0.0;
+        _graph->_nodes.front()->f_score = 0.0;
+        if (_goal - *states.front() < _distance_tolerance)
+            return;
+        _goal = *states.front();
     }
 
-    std::vector<StateSimple> _actions;
-    std::vector<std::shared_ptr<StateSimple>> _states;
     StateSimple _goal;
-    size_t _stop_iter;
-    std::shared_ptr<EnvironmentDesc> _environment;
-    static constexpr double _distance_tolerance = 0.2;
+    std::shared_ptr<Graph> _graph;
+    static constexpr double _distance_tolerance = 0.01;
 };
 
 #endif

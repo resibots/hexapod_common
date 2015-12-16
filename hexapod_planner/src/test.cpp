@@ -2,6 +2,7 @@
 #include <hexapod_planner_simple.hpp>
 #include <state_simple.hpp>
 #include <simple_env.hpp>
+#include <graph_simple.hpp>
 #include <map>
 
 #ifdef GRAPHIC
@@ -49,11 +50,11 @@ int main()
     tcw.x = 0;
     tcw.y = 0;
     tcw.theta = -1.56;
-    tcw.id = "turn clockwise";
+    tcw.id = "turn-clockwise";
     tccw.x = 0;
     tccw.y = 0;
     tccw.theta = 1.56;
-    tccw.id = "turn counter-clockwise";
+    tccw.id = "turn-counter-clockwise";
     actions.push_back(u);
     actions.push_back(d);
     actions.push_back(l);
@@ -75,8 +76,8 @@ int main()
     acts["down"] = d;
     acts["left"] = l;
     acts["right"] = r;
-    acts["turn clockwise"] = tcw;
-    acts["turn counter-clockwise"] = tccw;
+    acts["turn-clockwise"] = tcw;
+    acts["turn-counter-clockwise"] = tccw;
 #else
     StateSimple t;
     t.id = "fwd";
@@ -109,7 +110,7 @@ int main()
 #ifndef SIMPLE_EXALPLE
     goal.x = 1;
     goal.y = 2;
-    goal.theta = 1.56;
+    goal.theta = 0;
 #else
     goal.x = 5;
     goal.y = 5;
@@ -135,7 +136,7 @@ int main()
 
     std::cout << "start: " << start << std::endl;
 
-    EnvironmentSimple<ObstacleSimple> env;
+    std::shared_ptr<EnvironmentSimple<ObstacleSimple>> env = std::make_shared<EnvironmentSimple<ObstacleSimple>>();
 #ifdef OBSTACLES
     ObstacleSimple obs1;
 #ifndef SIMPLE_EXALPLE
@@ -146,21 +147,38 @@ int main()
     obs1.bounding.y = 2;
 #endif
     obs1.bounding.radius = 1;
-    env.add_obstacle(obs1);
+    env->add_obstacle(obs1);
 
     ObstacleSimple obs2;
     obs2.bounding.x = -2;
     obs2.bounding.y = 2;
     obs2.bounding.radius = 1;
-    env.add_obstacle(obs2);
+    env->add_obstacle(obs2);
 #endif
 
-    HexapodPlannerSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, env);
+    auto graph = std::make_shared<GraphSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>>>();
+    std::string graph_file = "example_graphs/test";
+#ifndef SIMPLE_EXALPLE
+    graph_file = "example_graphs/test_robot";
+#endif
+
+#ifndef OBSTACLES
+    graph_file += "_no_obs";
+#endif
+
+    graph_file += ".dat";
+
+    // graph->expand_nodes(env, actions, start, 5000);
+    // graph->save_to_file(graph_file);
+    graph->load_from_file(graph_file);
+    std::cout << "Graph loaded: " << graph->_nodes.size() << "\n";
+
+    HexapodPlannerSimple<StateSimple, GraphSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>>> planner(graph);
 
     auto traj = planner.plan(start, goal);
 
     for (auto a : traj) {
-        std::cout << a.id << " " << a << std::endl;
+        std::cout << a.id << " : " << a << std::endl;
     }
 
 #ifdef GRAPHIC
@@ -168,7 +186,7 @@ int main()
     std::vector<sf::CircleShape> obstacles;
     double x, y;
 
-    for (auto ob : env.obstacles()) {
+    for (auto ob : env->obstacles()) {
         sf::CircleShape obs(ENTITY_SIZE * ob->bounding.radius);
         obs.setFillColor(sf::Color::Red);
         obs.setOrigin(ENTITY_SIZE / 2.0, ENTITY_SIZE / 2.0);
