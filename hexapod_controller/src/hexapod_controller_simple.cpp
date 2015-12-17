@@ -1,4 +1,6 @@
-#include <hexapod_controller_simple.hpp>
+#include <hexapod_controller/hexapod_controller_simple.hpp>
+
+using namespace hexapod_controller;
 
 HexapodControllerSimple::HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs) : _broken_legs(broken_legs)
 {

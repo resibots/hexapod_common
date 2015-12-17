@@ -54,13 +54,14 @@ def build(bld):
         d = ['-DGRAPHIC']
 
     bld.program(features = 'cxx',
-                  source = 'src/test.cpp',
-                  includes = '. ./src',
+                  source = 'src/hexapod_planner_example.cpp',
+                  includes = './include',
                   uselib = 'SFML EIGEN',
                   cxxflags = d,
-                  target = 'test_plain')
+                  target = 'hexapod_planner_example')
+    bld.install_files('${PREFIX}/bin/', bld.path.ant_glob('example_graphs/*.dat'), relative_trick=True)
 
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/hexapod_planner_simple.hpp')
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/state_simple.hpp')
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/simple_env.hpp')
-    bld.install_files('${PREFIX}/include/hexapod_planner', 'src/graph_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'include/hexapod_planner/hexapod_planner_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'include/hexapod_planner/state_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'include/hexapod_planner/environment_simple.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_planner', 'include/hexapod_planner/graph_simple.hpp')

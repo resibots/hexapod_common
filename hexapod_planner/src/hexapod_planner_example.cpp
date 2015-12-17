@@ -1,13 +1,15 @@
 #include <iostream>
-#include <hexapod_planner_simple.hpp>
-#include <state_simple.hpp>
-#include <simple_env.hpp>
-#include <graph_simple.hpp>
+#include <hexapod_planner/hexapod_planner_simple.hpp>
+#include <hexapod_planner/state_simple.hpp>
+#include <hexapod_planner/environment_simple.hpp>
+#include <hexapod_planner/graph_simple.hpp>
 #include <map>
 
 #ifdef GRAPHIC
 #include <SFML/Graphics.hpp>
 #endif
+
+using namespace hexapod_planner;
 
 #define WIDTH 640
 #define HEIGHT 480
