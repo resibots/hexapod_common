@@ -39,25 +39,25 @@ from waflib.Configure import conf
 
 
 def options(opt):
-	opt.add_option('--planner', type='string', help='path to planner', dest='planner')
+	opt.add_option('--hexapod_planner', type='string', help='path to hexapod_planner', dest='planner')
 
 @conf
 def check_hexapod_planner(conf):
-	includes_check = ['/usr/local/include/hexapod_planner', '/usr/include/hexapod_planner']
+	includes_check = ['/usr/local/include', '/usr/include']
 
 	# You can customize where you want to check
 	# e.g. here we search also in a folder defined by an environmental variable
 	if 'RESIBOTS_DIR' in os.environ:
-		includes_check = [os.environ['RESIBOTS_DIR'] + '/include/hexapod_planner'] + includes_check
+		includes_check = [os.environ['RESIBOTS_DIR'] + '/include'] + includes_check
 
 	if conf.options.planner:
-		includes_check = [conf.options.planner + '/include/hexapod_planner']
+		includes_check = [conf.options.planner + '/include']
 
 	try:
 		conf.start_msg('Checking for hexapod_planner includes')
-		res = conf.find_file('hexapod_planner_simple.hpp', includes_check)
-		res = res and conf.find_file('state_simple.hpp', includes_check)
-		res = res and conf.find_file('simple_env.hpp', includes_check)
+		res = conf.find_file('hexapod_planner/hexapod_planner_simple.hpp', includes_check)
+		res = res and conf.find_file('hexapod_planner/state_simple.hpp', includes_check)
+		res = res and conf.find_file('hexapod_planner/environment_simple.hpp', includes_check)
 		conf.end_msg('ok')
 		conf.env.INCLUDES_HEXAPOD_PLANNER = includes_check
 	except:
@@ -70,9 +70,10 @@ Then in your C++ code you would have something like the following:
 
 ```cpp
 // previous includes
-#include <hexapod_controller_planner.hpp>
+#include <hexapod_planner/hexapod_controller_planner.hpp>
 
 // rest of code
+using namespace hexapod_planner;
 
 HexapodPlannerSimple<StateSimple, RobotSimple, EnvironmentSimple<ObstacleSimple>> planner(actions, goal, env);
 
