@@ -13,6 +13,7 @@ namespace hexapod_planner {
         std::string id;
         double x, y, theta, f_score, g_score;
         transform_t transformation;
+        double duration;
 
         std::vector<std::shared_ptr<StateSimple>> children;
         std::vector<std::string> actions;
@@ -55,6 +56,7 @@ namespace hexapod_planner {
             tmp_action.theta = std::atan2(tmp_action.transformation.rotation()(1, 0), tmp_action.transformation.rotation()(0, 0));
             tmp_action.x = tmp_action.transformation.translation()[0];
             tmp_action.y = tmp_action.transformation.translation()[1];
+            tmp_action.duration = other.duration;
             return tmp_action;
         }
 
@@ -72,13 +74,13 @@ namespace hexapod_planner {
             double dth = theta - other.theta;
             dth = std::atan2(std::sin(dth), std::cos(dth));
             double d = dx * dx + dy * dy + dth * dth;
-            return (d < 1e-2);
+            return (d < 1e-4);
         }
 
         double cost_from(const StateSimple& other) const
         {
             // simple cost
-            return 1.0;
+            return other.duration;
         }
     };
 

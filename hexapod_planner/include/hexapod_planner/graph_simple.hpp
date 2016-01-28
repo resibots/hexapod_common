@@ -42,6 +42,8 @@ namespace hexapod_planner {
                 size_t ch_size;
                 (*_log_file) >> tmp_node >> ch_size;
                 auto tmp_ptr = std::make_shared<StateSimple>(tmp_node);
+                tmp_ptr->f_score = std::numeric_limits<double>::infinity();
+                tmp_ptr->g_score = std::numeric_limits<double>::infinity();
                 _nodes.push_back(tmp_ptr);
                 tmp_ptr->children.clear();
                 tmp_ptr->actions.clear();
@@ -59,15 +61,12 @@ namespace hexapod_planner {
             for (size_t i = 0; i < node_size; i++) {
                 _nodes[i]->children.clear();
                 for (size_t j = 0; j < children[i].size(); j++) {
-                    if (children[i][j] < node_size)
-                        _nodes[i]->children.push_back(_nodes[children[i][j]]);
+                    _nodes[i]->children.push_back(_nodes[children[i][j]]);
                 }
             }
-
-            _nodes.erase(std::unique(_nodes.begin(), _nodes.end(), [](std::shared_ptr<StateSimple> l, std::shared_ptr<StateSimple> r) { return *l == *r; }), _nodes.end());
         }
 
-        void expand_nodes(const std::shared_ptr<EnvironmentDesc>& environment, const std::vector<StateSimple>& actions, const StateSimple& start, size_t stop_iter)
+        void expand_nodes(const std::shared_ptr<EnvironmentDesc>& environment, std::vector<StateSimple> actions, const StateSimple& start, size_t stop_iter)
         {
             assert(stop_iter > 0);
             assert(actions.size() > 0);
@@ -78,16 +77,20 @@ namespace hexapod_planner {
             std::shared_ptr<StateSimple> curr = nullptr;
 
             frontier.push_back(std::make_shared<StateSimple>(start));
-            frontier.back()->id = "start";
+            // frontier.back()->id = "start";
             frontier.back()->f_score = std::numeric_limits<double>::infinity();
             frontier.back()->g_score = std::numeric_limits<double>::infinity();
             frontier.back()->parent = nullptr;
             frontier.back()->children.clear();
 
+            size_t ii = 0;
             while (_nodes.size() < stop_iter) {
                 if (frontier.size() == 0) {
                     break;
                 }
+                ii++;
+                if (ii >= 5 * stop_iter)
+                    break;
 
                 // get one state
                 curr = frontier.front();
@@ -103,10 +106,13 @@ namespace hexapod_planner {
                 curr->actions.clear();
 
                 // expand using available actions
+                std::random_shuffle(actions.begin(), actions.end());
                 for (size_t j = 0; j < actions.size(); j++) {
                     auto tmp_state = std::make_shared<StateSimple>(*curr + actions[j]);
                     tmp_state->f_score = std::numeric_limits<double>::infinity();
                     tmp_state->g_score = std::numeric_limits<double>::infinity();
+                    tmp_state->children.clear();
+                    tmp_state->actions.clear();
                     auto it = std::find_if(frontier.begin(), frontier.end(), typename StateSimple::PointerEqual(tmp_state));
                     auto it2 = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(tmp_state));
                     // updating pointer if needed
@@ -132,15 +138,14 @@ namespace hexapod_planner {
                 }
             }
 
-            // remove children that are not in the _nodes - TO-DO: maybe we should add them to the nodes?
-            for (size_t i = 0; i < _nodes.size(); i++) {
+            // add children that are not in the _nodes
+            size_t NN = _nodes.size();
+            for (size_t i = 0; i < NN; i++) {
                 for (size_t j = 0; j < _nodes[i]->children.size(); j++) {
                     auto child = _nodes[i]->children[j];
                     auto it = std::find_if(_nodes.begin(), _nodes.end(), typename StateSimple::PointerEqual(child));
                     if (it == _nodes.end()) {
-                        _nodes[i]->children.erase(_nodes[i]->children.begin() + j);
-                        _nodes[i]->actions.erase(_nodes[i]->actions.begin() + j);
-                        j--;
+                        _nodes.push_back(child);
                     }
                 }
             }

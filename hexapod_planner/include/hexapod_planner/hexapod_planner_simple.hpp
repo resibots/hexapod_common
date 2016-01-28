@@ -33,16 +33,24 @@ namespace hexapod_planner {
             std::shared_ptr<StateSimple> curr_best = nullptr;
 
             if (std::find_if(_graph->_nodes.begin(), _graph->_nodes.end(), typename StateSimple::PointerEqual(std::make_shared<StateSimple>(_goal))) == _graph->_nodes.end()) {
-                std::cout << "Goal cannot be reached... Updating it to nearest state.." << std::endl;
+                // std::cout << "Goal cannot be reached... Updating it to nearest state.." << std::endl;
                 _update_goal();
-                std::cout << "New goal: " << _goal << std::endl;
+                // std::cout << "New goal: " << _goal << std::endl;
             }
 
             auto it = std::find_if(_graph->_nodes.begin(), _graph->_nodes.end(), typename StateSimple::PointerEqual(std::make_shared<StateSimple>(start)));
 
             if (it == _graph->_nodes.end()) {
-                std::cout << "Start node not in graph!" << std::endl;
-                return _trajectory(nullptr);
+                // std::cout << "Start node not in graph!" << std::endl;
+                it = _update_start(start);
+                // std::cout << "New start: " << *(*it) << std::endl;
+                // return _trajectory(nullptr);
+            }
+
+            for (auto ii = _graph->_nodes.begin(); ii != _graph->_nodes.end(); ii++) {
+                (*ii)->f_score = std::numeric_limits<double>::infinity();
+                (*ii)->g_score = std::numeric_limits<double>::infinity();
+                (*ii)->parent = nullptr;
             }
 
             (*it)->f_score = *(*it) - _goal;
@@ -59,7 +67,7 @@ namespace hexapod_planner {
 
                 // if reached goal
                 if (*curr_best == _goal || (*curr_best - _goal) < _distance_tolerance) {
-                    std::cout << "Goal reached" << std::endl;
+                    // std::cout << "Goal reached" << std::endl;
                     break;
                 }
 
@@ -112,17 +120,35 @@ namespace hexapod_planner {
             for (size_t i = 0; i < _graph->_nodes.size(); i++)
                 states[i]->f_score = *_graph->_nodes[i] - _goal;
             std::sort(states.begin(), states.end(), typename StateSimple::PointerCompare());
-            for (size_t i = 0; i < states.size(); i++)
-                states[i]->f_score = std::numeric_limits<double>::infinity();
-            _graph->_nodes.front()->f_score = 0.0;
+            for (size_t i = 0; i < _graph->_nodes.size(); i++) {
+                _graph->_nodes[i]->f_score = std::numeric_limits<double>::infinity();
+                _graph->_nodes[i]->g_score = std::numeric_limits<double>::infinity();
+            }
             if (_goal - *states.front() < _distance_tolerance)
                 return;
             _goal = *states.front();
         }
 
+        typename std::vector<std::shared_ptr<StateSimple>>::iterator _update_start(const StateSimple& start)
+        {
+            assert(_graph->_nodes.size() > 0);
+            std::vector<std::shared_ptr<StateSimple>> states = _graph->_nodes;
+            for (size_t i = 0; i < _graph->_nodes.size(); i++)
+                states[i]->f_score = *_graph->_nodes[i] - start;
+            std::sort(states.begin(), states.end(), typename StateSimple::PointerCompare());
+            for (size_t i = 0; i < _graph->_nodes.size(); i++) {
+                _graph->_nodes[i]->f_score = std::numeric_limits<double>::infinity();
+                _graph->_nodes[i]->g_score = std::numeric_limits<double>::infinity();
+            }
+            auto it = states.begin();
+            while (it != states.end() && (*it)->children.size() == 0)
+                it++;
+            return std::find_if(_graph->_nodes.begin(), _graph->_nodes.end(), typename StateSimple::PointerEqual(*it));
+        }
+
         StateSimple _goal;
         std::shared_ptr<Graph> _graph;
-        static constexpr double _distance_tolerance = 0.01;
+        static constexpr double _distance_tolerance = 1e-6;
     };
 }
 
