@@ -61,7 +61,7 @@ namespace hexapod_controller {
             _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
         }
 
-        std::vector<double> parameters() const
+        const std::vector<double>& parameters() const
         {
             return _controller;
         }
@@ -71,7 +71,7 @@ namespace hexapod_controller {
             _broken_legs = broken_legs;
         }
 
-        std::vector<int> broken_legs() const
+        const std::vector<int>& broken_legs() const
         {
             return _broken_legs;
         }
