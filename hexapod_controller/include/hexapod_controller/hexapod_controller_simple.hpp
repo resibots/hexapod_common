@@ -61,7 +61,7 @@ namespace hexapod_controller {
             _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
         }
 
-        std::vector<double> parameters()
+        std::vector<double> parameters() const
         {
             return _controller;
         }
@@ -71,12 +71,12 @@ namespace hexapod_controller {
             _broken_legs = broken_legs;
         }
 
-        std::vector<int> broken_legs()
+        std::vector<int> broken_legs() const
         {
             return _broken_legs;
         }
 
-        std::vector<double> pos(double t)
+        std::vector<double> pos(double t) const
         {
             assert(_controller.size() == 36);
 
@@ -136,7 +136,7 @@ namespace hexapod_controller {
         }
 
     protected:
-        array_t _control_signal(double amplitude, double phase, double duty_cycle)
+        array_t _control_signal(double amplitude, double phase, double duty_cycle) const
         {
             array_t temp;
             int up_time = ARRAY_DIM * duty_cycle;
