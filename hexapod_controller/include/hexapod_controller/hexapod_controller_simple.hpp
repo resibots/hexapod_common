@@ -13,12 +13,13 @@
 
 namespace hexapod_controller {
 
+    template <typename Hexapod = int, typename World = int>
     class HexapodControllerSimple {
     public:
         typedef std::array<double, ARRAY_DIM> array_t;
 
         HexapodControllerSimple() {}
-        HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs) : _broken_legs(broken_legs)
+        HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs, const Hexapod& robot = Hexapod(), const World& world = World()) : _broken_legs(broken_legs)
         {
             set_parameters(ctrl);
         }
@@ -94,39 +95,39 @@ namespace hexapod_controller {
 
                 switch (leg) {
                 case 0:
-                    angles.push_back(M_PI_4 / 2 * _legs0commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs0commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs0commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs0commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs0commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 1:
-                    angles.push_back(M_PI_4 / 2 * _legs1commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs1commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs1commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs1commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs1commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 2:
-                    angles.push_back(M_PI_4 / 2 * _legs2commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs2commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs2commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs2commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs2commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 3:
-                    angles.push_back(M_PI_4 / 2 * _legs3commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs3commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs3commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs3commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs3commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 4:
-                    angles.push_back(M_PI_4 / 2 * _legs4commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs4commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs4commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs4commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs4commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 5:
-                    angles.push_back(M_PI_4 / 2 * _legs5commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 / 2 * _legs5commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs5commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs5commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(M_PI_4 * _legs5commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
                 }
 
