@@ -13,9 +13,9 @@
 
 Here we keep the gait controllers (generators) that make our hexapods alive.
 
-### hexapod_planner
+### hexapod_models
 
-Here we keep the (path) planners that produce series of actions or paths for our hexapods to follow.
+Here we keep the simulation and/or ROS models for our hexapods.
 
 ## LICENSE
 
