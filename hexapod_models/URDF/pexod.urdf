@@ -24,7 +24,6 @@
   <!-- END OF MATERIALS -->
   <!-- XACRO MACROS FOR VISUALS AND COLLISIONS -->
   <!-- END OF XACRO MACROS -->
-  <!-- <xacro:include filename="$(find hexapod_description)/urdf/pexod_gazebo.xacro" /> -->
   <!-- TORSO -->
   <link name="base_link">
     <visual>
@@ -54,7 +53,7 @@
     <parent link="base_link"/>
     <child link="leg_2_1"/>
     <limit effort="30.0" lower="-1.57079632679" upper="1.57079632679" velocity="7.0"/>
-    <origin rpy="0 0 -0.3" xyz="0.12 0.08 0"/>
+    <origin rpy="0 0 -0.3" xyz="0.11 0.04 0"/>
     <!-- <xacro:if value="${index == 5 or index == 4 or index == 3}">
                 <axis xyz="0 0 1"/>
             </xacro:if>
@@ -74,15 +73,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_2_1_2" type="revolute">
@@ -104,15 +103,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_2_2_3" type="revolute">
@@ -127,7 +126,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -141,7 +140,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -154,16 +153,16 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <joint name="body_leg_3" type="revolute">
     <parent link="base_link"/>
     <child link="leg_3_1"/>
     <limit effort="30.0" lower="-1.57079632679" upper="1.57079632679" velocity="7.0"/>
-    <origin rpy="0 0 0.3" xyz="0.12 -0.08 0"/>
+    <origin rpy="0 0 0.3" xyz="0.11 -0.04 0"/>
     <!-- <xacro:if value="${index == 5 or index == 4 or index == 3}">
                 <axis xyz="0 0 1"/>
             </xacro:if>
@@ -183,15 +182,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_3_1_2" type="revolute">
@@ -213,15 +212,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_3_2_3" type="revolute">
@@ -236,7 +235,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -250,7 +249,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -263,16 +262,16 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <joint name="body_leg_0" type="revolute">
     <parent link="base_link"/>
     <child link="leg_0_1"/>
     <limit effort="30.0" lower="-1.57079632679" upper="1.57079632679" velocity="7.0"/>
-    <origin rpy="0 0 0.3" xyz="-0.14 0.08 0"/>
+    <origin rpy="0 0 0.3" xyz="-0.13 0.04 0"/>
     <!-- <xacro:if value="${index == 5 or index == 4 or index == 3}">
                 <axis xyz="0 0 1"/>
             </xacro:if>
@@ -292,15 +291,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_0_1_2" type="revolute">
@@ -322,15 +321,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_0_2_3" type="revolute">
@@ -345,7 +344,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -359,7 +358,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -372,16 +371,16 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <joint name="body_leg_5" type="revolute">
     <parent link="base_link"/>
     <child link="leg_5_1"/>
     <limit effort="30.0" lower="-1.57079632679" upper="1.57079632679" velocity="7.0"/>
-    <origin rpy="0 0 -0.3" xyz="-0.14 -0.08 0"/>
+    <origin rpy="0 0 -0.3" xyz="-0.13 -0.04 0"/>
     <!-- <xacro:if value="${index == 5 or index == 4 or index == 3}">
                 <axis xyz="0 0 1"/>
             </xacro:if>
@@ -401,15 +400,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_5_1_2" type="revolute">
@@ -431,15 +430,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_5_2_3" type="revolute">
@@ -454,7 +453,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -468,7 +467,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -481,9 +480,9 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <joint name="body_leg_1" type="revolute">
@@ -510,15 +509,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_1_1_2" type="revolute">
@@ -540,15 +539,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_1_2_3" type="revolute">
@@ -563,7 +562,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -577,7 +576,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -590,9 +589,9 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <joint name="body_leg_4" type="revolute">
@@ -619,15 +618,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <geometry>
-        <cylinder length="0.06" radius="0.02"/>
+        <box size="0.02 0.02 0.06"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.03 0"/>
       <mass value="0.02"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="8e-06" ixy="0" ixz="0" iyy="8e-06" iyz="0" izz="6.66666666667e-07"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.66666666667e-06" ixy="0" ixz="0" iyy="6.66666666667e-06" iyz="0" izz="1.33333333333e-06"/>
     </inertial>
   </link>
   <joint name="leg_4_1_2" type="revolute">
@@ -649,15 +648,15 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <geometry>
-        <cylinder length="0.085" radius="0.02"/>
+        <box size="0.02 0.02 0.085"/>
       </geometry>
     </collision>
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.01 -0.0425 0"/>
       <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="0.000116916666667" ixy="0" ixz="0" iyy="0.000116916666667" iyz="0" izz="1.22666666667e-05"/>
     </inertial>
   </link>
   <joint name="leg_4_2_3" type="revolute">
@@ -672,7 +671,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <cylinder length="0.14" radius="0.025"/>
       </geometry>
       <material name="Red"/>
     </visual>
@@ -686,7 +685,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
       <geometry>
-        <cylinder length="0.115" radius="0.025"/>
+        <box size="0.025 0.025 0.14"/>
       </geometry>
     </collision>
     <collision>
@@ -699,13 +698,11 @@
     <inertial>
       <!-- CENTER OF MASS -->
       <origin rpy="1.57079632679 0 0" xyz="0.0125 -0.07 0"/>
-      <mass value="0.184"/>
-      <!-- Cylinder inertia: 1/12*m*(3*r^2+h^2), 1/12*m*(3*r^2+h^2), 1/12*m*r^2 -->
-      <inertia ixx="0.000129183333333" ixy="0" ixz="0" iyy="0.000129183333333" iyz="0" izz="6.13333333333e-06"/>
+      <mass value="0.04"/>
+      <!-- box inertia: 1/12*m(y^2+z^2), ... -->
+      <inertia ixx="6.74166666667e-05" ixy="0" ixz="0" iyy="6.74166666667e-05" iyz="0" izz="4.16666666667e-06"/>
     </inertial>
   </link>
   <!-- END OF LEG LINKS/JOINTS -->
-  <!-- <xacro:include filename="$(find hexapod_description)/urdf/modules/imu.xacro" /> -->
-  <!-- <xacro:include filename="$(find hexapod_description)/urdf/modules/cameras.xacro" /> -->
 </robot>
 
