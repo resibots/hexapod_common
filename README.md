@@ -9,6 +9,8 @@ This repo contains all the common data/code for our hexapods.
 
 ## Packages
 
+Go to the packages' folders for more detailed READMEs.
+
 ### hexapod_controller
 
 Here we keep the gait controllers (generators) that make our hexapods alive.
