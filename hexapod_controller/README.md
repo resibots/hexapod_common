@@ -6,9 +6,13 @@
 
 ### HexapodControllerSimple
 
-A simple sinusoidal controller.
+A simple sinusoidal-like controller.
 
-**UNDER CONSTRUCTION**
+### HexapodControllerCartesian
+
+A controller very similar to HexapodControllerSimple but generating trajectories in cartesian space. These trajectories are to be followed by the tips of the hexapod's legs.
+
+For the sake of compatibility, this class uses the same way to describe the controller, only with 54 parameters instead of 36.
 
 ## How to compile
 
