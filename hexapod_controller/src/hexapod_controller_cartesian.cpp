@@ -64,9 +64,9 @@ int main()
 
     // Testing the broken leg parameter
     // std::vector<int> broken_legs = {{1, 2, 3, 4}};
-    // HexapodControllerCartesian<6, 3> controller(control_params, broken_legs, scaling);
+    // HexapodControllerCartesian<6> controller(control_params, broken_legs, scaling);
 
-    HexapodControllerCartesian<6, 3> controller(control_params, {}, scaling);
+    HexapodControllerCartesian<6> controller(control_params, {}, scaling);
 
     std::ofstream trajectory_file("traj.csv");
     for (double t = 0.0; t <= 5.0; t += 0.01) {

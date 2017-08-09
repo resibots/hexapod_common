@@ -12,7 +12,7 @@
 namespace hexapod_controller {
 
     // SamplingFrequency represents the number of samples per second. It is also the number of point generated for the trajectory.
-    template <uint8_t NLegs, uint8_t NJointsPerLeg, uint16_t SamplingFrequency = 100>
+    template <uint8_t NLegs, uint16_t SamplingFrequency = 100>
     class HexapodControllerCartesian {
     public:
         typedef std::array<double, SamplingFrequency> array_t;
@@ -31,13 +31,13 @@ namespace hexapod_controller {
 
         void set_parameters(const std::vector<double>& ctrl)
         {
-            assert(ctrl.size() == NLegs * NJointsPerLeg * 3);
+            assert(ctrl.size() == NLegs * 3 * 3);
 
             _controller = ctrl;
 
             for (uint8_t leg = 0; leg < NLegs; ++leg) {
-                for (uint8_t joint = 0; joint < NJointsPerLeg; ++joint) {
-                    auto offset = (leg * NJointsPerLeg + joint) * 3;
+                for (uint8_t joint = 0; joint < 3; ++joint) {
+                    auto offset = (leg * 3 + joint) * 3;
                     _leg_commands[leg][joint] = _control_signal(ctrl[offset], ctrl[offset + 1], ctrl[offset + 2]);
                 }
             }
@@ -78,9 +78,19 @@ namespace hexapod_controller {
             return _scaling;
         }
 
-        std::array<std::array<double, NJointsPerLeg>, NLegs> pos(const double t) const
+        /** Get the state at time t.
+
+            For a hexapod with 3 joints per leg, you'll get an array of 6 entries
+            (one per leg), each being an array of 3 joint angles.
+
+            @param t current time, in seconds
+
+            @return the first dimension is for the leg and the second for the
+                joint within the leg.
+        **/
+        std::array<std::array<double, 3>, NLegs> pos(const double t) const
         {
-            std::array<std::array<double, NJointsPerLeg>, NLegs> angles;
+            std::array<std::array<double, 3>, NLegs> angles;
 
             // the signal being generated for a 1s window with SamplingFrequency
             // samples, move the absolute time input to that window and convert it to a sample number
@@ -93,7 +103,7 @@ namespace hexapod_controller {
                 //     continue;
 
                 // iteration over the leg's joints
-                for (uint8_t joint = 0; joint < NJointsPerLeg; ++joint) {
+                for (uint8_t joint = 0; joint < 3; ++joint) {
                     angles[leg][joint]
                         = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
                 }
@@ -164,7 +174,7 @@ namespace hexapod_controller {
             return final_command;
         }
 
-        std::array<std::array<array_t, NJointsPerLeg>, NLegs> _leg_commands;
+        std::array<std::array<array_t, 3>, NLegs> _leg_commands;
 
         std::vector<double> _controller;
         // std::array<bool, NLegs> _broken_legs;
