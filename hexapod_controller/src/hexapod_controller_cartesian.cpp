@@ -72,7 +72,7 @@ int main()
     for (double t = 0.0; t <= 5.0; t += 0.01) {
         auto angles = controller.pos(t);
         trajectory_file << t << ", " << angles << std::endl;
-        // trajectory_file << t << ", " << angles[0] << ", " << angles[1] << ", " << angles[2] << std::endl;
+        // trajectory_file << t << ", " << angles[0][0] << ", " << angles[0][1] << ", " << angles[0][2] << std::endl;
     }
     return 0;
 }

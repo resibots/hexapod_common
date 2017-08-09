@@ -78,9 +78,9 @@ namespace hexapod_controller {
             return _scaling;
         }
 
-        std::array<double, NLegs * NJointsPerLeg> pos(const double t) const
+        std::array<std::array<double, NJointsPerLeg>, NLegs> pos(const double t) const
         {
-            std::array<double, NLegs * NJointsPerLeg> angles;
+            std::array<std::array<double, NJointsPerLeg>, NLegs> angles;
 
             // the signal being generated for a 1s window with SamplingFrequency
             // samples, move the absolute time input to that window and convert it to a sample number
@@ -94,7 +94,7 @@ namespace hexapod_controller {
 
                 // iteration over the leg's joints
                 for (uint8_t joint = 0; joint < NJointsPerLeg; ++joint) {
-                    angles[leg * NJointsPerLeg + joint]
+                    angles[leg][joint]
                         = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
                 }
             }
