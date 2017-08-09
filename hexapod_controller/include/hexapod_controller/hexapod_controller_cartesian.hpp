@@ -39,10 +39,6 @@ namespace hexapod_controller {
 
             _controller = ctrl;
 
-            // 1, 0, 0.5, 0, 0.25, 0.5, 0, 0.5, 0.5
-            // _legs0commands.push_back(_control_signal(2, 0, 0.5));
-            // _legs0commands.push_back(_control_signal(0, 0.25, 0.5));
-            // _legs0commands.push_back(_control_signal(0, 0.5, 0.5));
             _legs0commands.push_back(_control_signal(ctrl[0], ctrl[1], ctrl[2]));
             _legs0commands.push_back(_control_signal(ctrl[3], ctrl[4], ctrl[5]));
             _legs0commands.push_back(_control_signal(ctrl[6], ctrl[7], ctrl[8]));
