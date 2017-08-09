@@ -18,7 +18,11 @@ namespace hexapod_controller {
         typedef std::array<double, SamplingFrequency> array_t;
 
         HexapodControllerCartesian() {}
-        HexapodControllerCartesian(const std::vector<double>& ctrl, std::vector<int> broken_legs, const std::array<std::array<double, 3>, 6>& scaling = std::array<std::array<double, 3>, 6>())
+        HexapodControllerCartesian(
+            const std::vector<double>& ctrl,
+            std::vector<int> broken_legs,
+            const std::array<std::array<double, 3>, 6>& scaling = std::array<std::array<double, 3>, 6>())
+
             : _scaling(scaling)
         {
             // _broken_legs.fill(false);
@@ -29,6 +33,17 @@ namespace hexapod_controller {
             set_parameters(ctrl);
         }
 
+        /** Set the trajectory's parameters.
+
+            This method is also called at contruction with the provided parameters
+            (unles the empty contructor is used).
+
+            @param ctrl parameters of the trajectory, nine parameter per leg;
+                these nine parameters are actually three triplet, each
+                representing an axis in cartesian space
+
+                All parameters should be between 0 and 1.
+            **/
         void set_parameters(const std::vector<double>& ctrl)
         {
             assert(ctrl.size() == NLegs * 3 * 3);
