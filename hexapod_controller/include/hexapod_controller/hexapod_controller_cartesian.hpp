@@ -12,7 +12,7 @@
 namespace hexapod_controller {
 
     // SamplingFrequency represents the number of samples per second. It is also the number of point generated for the trajectory.
-    template <uint8_t NLegs, uint16_t SamplingFrequency = 100>
+    template <uint8_t NLegs = 6, uint16_t SamplingFrequency = 100>
     class HexapodControllerCartesian {
     public:
         typedef std::array<double, SamplingFrequency> array_t;
