@@ -20,7 +20,7 @@ namespace hexapod_controller {
         HexapodControllerCartesian() {}
         HexapodControllerCartesian(
             const std::vector<double>& ctrl,
-            std::vector<int> broken_legs,
+            std::vector<int> broken_legs = std::vector<int>(),
             const std::array<std::array<double, 3>, 6>& scaling = std::array<std::array<double, 3>, 6>())
 
             : _scaling(scaling)
@@ -120,7 +120,9 @@ namespace hexapod_controller {
                 // iteration over the leg's joints
                 for (uint8_t joint = 0; joint < 3; ++joint) {
                     angles[leg][joint]
-                        = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
+                        = _leg_commands[leg][joint][time_index];
+                    // TODO: use scaling or not ?
+                    // = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
                 }
             }
             return angles;
