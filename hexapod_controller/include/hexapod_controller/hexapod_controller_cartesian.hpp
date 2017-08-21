@@ -120,9 +120,7 @@ namespace hexapod_controller {
                 // iteration over the leg's joints
                 for (uint8_t joint = 0; joint < 3; ++joint) {
                     angles[leg][joint]
-                        = _leg_commands[leg][joint][time_index];
-                    // TODO: use scaling or not ?
-                    // = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
+                        = _scaling[leg][joint] * _leg_commands[leg][joint][time_index];
                 }
             }
             return angles;
