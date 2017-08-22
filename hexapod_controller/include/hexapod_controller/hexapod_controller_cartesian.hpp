@@ -127,7 +127,7 @@ namespace hexapod_controller {
         }
 
     protected:
-        /** Generate a trajectoyr shaped like a rounded square signal.
+        /** Generate a trajectory shaped like a rounded square signal.
 
             All parameters should have a value between 0 and 1.
         **/
