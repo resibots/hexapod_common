@@ -25,7 +25,7 @@ namespace hexapod_controller {
 
         void set_parameters(const std::vector<double>& ctrl)
         {
-            assert(ctrl.size() == 36);
+            assert(ctrl.size() == 54);
 
             _legs0commands.clear();
             _legs1commands.clear();
@@ -36,29 +36,29 @@ namespace hexapod_controller {
 
             _controller = ctrl;
 
-            _legs0commands.push_back(_control_signal(ctrl[0], ctrl[1], ctrl[2]));
-            _legs0commands.push_back(_control_signal(ctrl[3], ctrl[4], ctrl[5]));
-            _legs0commands.push_back(_control_signal(ctrl[3], ctrl[4], ctrl[5]));
+            _legs0commands.push_back(_control_signal(ctrl[0], ctrl[1], ctrl[2], true));
+            _legs0commands.push_back(_control_signal(ctrl[3], ctrl[4], ctrl[5], true));
+            _legs0commands.push_back(_control_signal(ctrl[6], ctrl[7], ctrl[8], false));
 
-            _legs1commands.push_back(_control_signal(ctrl[6], ctrl[7], ctrl[8]));
-            _legs1commands.push_back(_control_signal(ctrl[9], ctrl[10], ctrl[11]));
-            _legs1commands.push_back(_control_signal(ctrl[9], ctrl[10], ctrl[11]));
+            _legs1commands.push_back(_control_signal(ctrl[9], ctrl[10], ctrl[11], true));
+            _legs1commands.push_back(_control_signal(ctrl[12], ctrl[13], ctrl[14], true));
+            _legs1commands.push_back(_control_signal(ctrl[15], ctrl[16], ctrl[17], false));
 
-            _legs2commands.push_back(_control_signal(ctrl[12], ctrl[13], ctrl[14]));
-            _legs2commands.push_back(_control_signal(ctrl[15], ctrl[16], ctrl[17]));
-            _legs2commands.push_back(_control_signal(ctrl[15], ctrl[16], ctrl[17]));
+            _legs2commands.push_back(_control_signal(ctrl[18], ctrl[19], ctrl[20], true));
+            _legs2commands.push_back(_control_signal(ctrl[21], ctrl[22], ctrl[23], true));
+            _legs2commands.push_back(_control_signal(ctrl[24], ctrl[25], ctrl[26], false));
 
-            _legs3commands.push_back(_control_signal(ctrl[18], ctrl[19], ctrl[20]));
-            _legs3commands.push_back(_control_signal(ctrl[21], ctrl[22], ctrl[23]));
-            _legs3commands.push_back(_control_signal(ctrl[21], ctrl[22], ctrl[23]));
+            _legs3commands.push_back(_control_signal(ctrl[27], ctrl[28], ctrl[29], true));
+            _legs3commands.push_back(_control_signal(ctrl[30], ctrl[31], ctrl[32], true));
+            _legs3commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35], false));
 
-            _legs4commands.push_back(_control_signal(ctrl[24], ctrl[25], ctrl[26]));
-            _legs4commands.push_back(_control_signal(ctrl[27], ctrl[28], ctrl[29]));
-            _legs4commands.push_back(_control_signal(ctrl[27], ctrl[28], ctrl[29]));
+            _legs4commands.push_back(_control_signal(ctrl[36], ctrl[37], ctrl[38], true));
+            _legs4commands.push_back(_control_signal(ctrl[39], ctrl[40], ctrl[41], true));
+            _legs4commands.push_back(_control_signal(ctrl[42], ctrl[43], ctrl[44], false));
 
-            _legs5commands.push_back(_control_signal(ctrl[30], ctrl[31], ctrl[32]));
-            _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
-            _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
+            _legs5commands.push_back(_control_signal(ctrl[45], ctrl[46], ctrl[47], true));
+            _legs5commands.push_back(_control_signal(ctrl[48], ctrl[49], ctrl[50], true));
+            _legs5commands.push_back(_control_signal(ctrl[51], ctrl[52], ctrl[53], false));
         }
 
         const std::vector<double>& parameters() const
@@ -78,7 +78,7 @@ namespace hexapod_controller {
 
         std::vector<double> pos(double t) const
         {
-            assert(_controller.size() == 36);
+            assert(_controller.size() == 54);
 
             std::vector<double> angles;
             int leg = 0;
@@ -91,42 +91,42 @@ namespace hexapod_controller {
                             break;
                     }
                 }
+                
 
                 switch (leg) {
                 case 0:
                     angles.push_back(M_PI_4 / 2 * _legs0commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs0commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs0commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 * _legs0commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs0commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 1:
                     angles.push_back(M_PI_4 / 2 * _legs1commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs1commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs1commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    break;
+                    angles.push_back(-M_PI_4 * _legs1commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs1commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);                    break;
 
                 case 2:
                     angles.push_back(M_PI_4 / 2 * _legs2commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs2commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs2commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 * _legs2commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs2commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 3:
                     angles.push_back(M_PI_4 / 2 * _legs3commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs3commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs3commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 * _legs3commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs3commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 4:
                     angles.push_back(M_PI_4 / 2 * _legs4commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs4commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs4commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 * _legs4commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs4commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
 
                 case 5:
                     angles.push_back(M_PI_4 / 2 * _legs5commands[0][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     angles.push_back(M_PI_4 * _legs5commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
-                    angles.push_back(-M_PI_4 * _legs5commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
+                    angles.push_back(-M_PI_4 * _legs5commands[1][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM] + M_PI_4 * _legs5commands[2][((int)std::floor(t * ARRAY_DIM)) % ARRAY_DIM]);
                     break;
                 }
 
@@ -136,14 +136,17 @@ namespace hexapod_controller {
         }
 
     protected:
-        array_t _control_signal(double amplitude, double phase, double duty_cycle) const
+        array_t _control_signal(double amplitude, double phase, double duty_cycle, bool negative) const
         {
             array_t temp;
             int up_time = ARRAY_DIM * duty_cycle;
             for (int i = 0; i < up_time; i++)
                 temp[i] = amplitude;
             for (int i = up_time; i < ARRAY_DIM; i++)
-                temp[i] = -amplitude;
+                if(negative) // true if we want to go from -amplitude to +amplitude and false to go from 0 to +amplitude
+                    temp[i] = -amplitude;
+                else
+                    temp[i] = 0;
 
             // filtering
             int kernel_size = ARRAY_DIM / 10;
