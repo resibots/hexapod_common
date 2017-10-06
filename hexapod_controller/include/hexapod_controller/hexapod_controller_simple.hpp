@@ -18,7 +18,8 @@ namespace hexapod_controller {
         typedef std::array<double, ARRAY_DIM> array_t;
 
         HexapodControllerSimple() {}
-        HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs) : _broken_legs(broken_legs)
+        HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs)
+            : _broken_legs(broken_legs)
         {
             set_parameters(ctrl);
         }
@@ -136,6 +137,9 @@ namespace hexapod_controller {
         }
 
     protected:
+        /**
+            All parameters should have a value between 0 and 1.
+        **/
         array_t _control_signal(double amplitude, double phase, double duty_cycle) const
         {
             array_t temp;
@@ -204,6 +208,6 @@ namespace hexapod_controller {
         std::vector<double> _controller;
         std::vector<int> _broken_legs;
     };
-}
+} // namespace hexapod_controller
 
 #endif
