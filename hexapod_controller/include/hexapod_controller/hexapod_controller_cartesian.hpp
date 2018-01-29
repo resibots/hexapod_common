@@ -109,7 +109,7 @@ namespace hexapod_controller {
 
             // the signal being generated for a 1s window with SamplingFrequency
             // samples, move the absolute time input to that window and convert it to a sample number
-            uint16_t time_index = ((int)std::floor(t * SamplingFrequency)) % SamplingFrequency;
+            uint16_t time_index = (int(std::floor(t * SamplingFrequency))) % SamplingFrequency;
 
             // iteration over the legs
             for (uint8_t leg = 0; leg < NLegs; ++leg) {
@@ -149,7 +149,7 @@ namespace hexapod_controller {
             double sigma = kernel_size / 3;
 
             double sum = 0;
-            for (int i = 0; i < (int)kernel.size(); i++) {
+            for (int i = 0; i < int(kernel.size()); i++) {
                 kernel[i] = exp(-(i - kernel_size) * (i - kernel_size) / (2 * sigma * sigma)) / (sigma * sqrt(M_PI));
                 sum += kernel[i];
             }
