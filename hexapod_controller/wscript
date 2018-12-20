@@ -53,3 +53,4 @@ def build(bld):
                 target = 'hexapod_controller_cartesian')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_cartesian.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/cpg.hpp')
