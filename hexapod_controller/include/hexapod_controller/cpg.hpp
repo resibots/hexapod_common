@@ -209,7 +209,7 @@ namespace cpg {
         std::vector<std::pair<float, float>> XYdot;
         float x, y, Hcx, dHx, Hcy, dHy, Hc, xdot, ydot, Kterm;
 
-        for (int i = 0; i < K_.size(); i++) {
+        for (unsigned int i = 0; i < K_.size(); i++) {
             x = X[i];
             y = Y[i];
             Hcx = pow((x - cx_[i]) / a_, d_); /* x part of Hc*/
@@ -225,7 +225,7 @@ namespace cpg {
             ydot = w_ * dHx + gammacpg_ * (1 - Hc) * dHy;
 
             Kterm = 0; /* coupling term which needs to be added to ydot*/
-            for (int j = 0; j < K_[i].size(); j++) {
+            for (unsigned int j = 0; j < K_[i].size(); j++) {
                 Kterm += K_[i][j] * (Y[j] - cy_[j]);
                 // std::cout << "K_[i][j] " << K_[i][j] << std::endl;
                 // std::cout << " K_[i][j] * (Y[j] - cy_[j])] " << K_[i][j] * (Y[j] - cy_[j]) << std::endl;
@@ -260,7 +260,7 @@ namespace cpg {
         int sign = 1;
         float cy2 = 0;
         std::vector<int> leg_map_to_paper = {0, 2, 4, 5, 3, 1};
-        for (int i = 0; i < K_.size(); i++) {
+        for (unsigned int i = 0; i < K_.size(); i++) {
             // std::cout << "delta_theta_e " << delta_theta_e(1, i) << std::endl;
             cy_[i] = cy0_[i] + 0.1 * integrate_delta_thetay[i];
             // cx_[i] = cx0_[i] + 0.1 * integrate_delta_thetax[i];
@@ -285,7 +285,7 @@ namespace cpg {
             ydot = w_ * dHx + gammacpg_ * (1 - Hc) * dHy;
 
             Kterm = 0; /* coupling term which needs to be added to ydot*/
-            for (int j = 0; j < K_[i].size(); j++) {
+            for (unsigned int j = 0; j < K_[i].size(); j++) {
                 Kterm += K_[i][j] * (Y[j] - cy_[i]);
             }
             std::cout << " w * dHx    = " << w_ * dHx << '\n';
@@ -454,6 +454,26 @@ namespace cpg {
             std::vector<std::vector<float>> Kk;
             std::vector<float> k;
             for (int i = 0; i < ctrl.size(); i++) {
+                if (((i % 6) == 0) && i != 0) {
+                    Kk.push_back(k);
+                    k.clear();
+                }
+                k.push_back(ctrl[i]);
+            }
+
+            K_ = Kk;
+            // K_ = createK();
+        }
+        else if (ctrl.size() == 41) {
+            w_ = ctrl[0];
+            lambda_ = ctrl[1];
+            gammacpg_ = ctrl[2];
+            a_ = ctrl[3];
+            b_ = ctrl[4];
+
+            std::vector<std::vector<float>> Kk;
+            std::vector<float> k;
+            for (int i = 5; i < ctrl.size(); i++) {
                 if (((i % 6) == 0) && i != 0) {
                     Kk.push_back(k);
                     k.clear();

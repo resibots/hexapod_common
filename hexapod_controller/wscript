@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import sys
+sys.path.insert(0, sys.path[0]+'/waf_tools')
 
 VERSION = '0.0.1'
 APPNAME = 'hexapod_controller'
@@ -8,16 +10,23 @@ srcdir = '.'
 blddir = 'build'
 
 from waflib.Build import BuildContext
-
+import boost
+import eigen
 
 def options(opt):
     opt.load('compiler_cxx')
     opt.load('compiler_c')
-
+    opt.load('boost')
+    opt.load('eigen')
 
 def configure(conf):
     conf.load('compiler_cxx')
     conf.load('compiler_c')
+    conf.load('boost')
+    conf.load('eigen')
+
+    conf.check_boost(lib='regex system filesystem', min_version='1.46')
+    conf.check_eigen()
 
     if conf.env.CXX_NAME in ["icc", "icpc"]:
         common_flags = "-Wall -std=c++11"
@@ -42,6 +51,7 @@ def build(bld):
                 install_path = None,
                 source = 'src/hexapod_controller_simple.cpp',
                 includes = './include',
+                uselib = 'BOOST BOOST_SYSTEM BOOST_REGEX EIGEN ',
                 target = 'hexapod_controller_simple')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_simple.hpp')
@@ -50,7 +60,17 @@ def build(bld):
                 install_path = None,
                 source = 'src/hexapod_controller_cartesian.cpp',
                 includes = './include',
+                uselib = 'BOOST BOOST_SYSTEM BOOST_REGEX EIGEN ',
                 target = 'hexapod_controller_cartesian')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_cartesian.hpp')
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/cpg.hpp')
+
+    bld.program(features = 'cxx',
+                install_path = None,
+                source = 'src/hexapod_controller_imu.cpp',
+                includes = './include',
+                uselib = 'BOOST BOOST_SYSTEM BOOST_REGEX EIGEN ',
+                target = 'hexapod_controller_imu')
+
+    bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_imu.hpp')
