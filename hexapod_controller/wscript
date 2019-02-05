@@ -74,3 +74,12 @@ def build(bld):
                 target = 'hexapod_controller_imu')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_imu.hpp')
+
+    bld.program(features = 'cxx',
+                install_path = None,
+                source = 'src/hexapod_controller_imu_position.cpp',
+                includes = './include',
+                uselib = 'BOOST BOOST_SYSTEM BOOST_REGEX EIGEN ',
+                target = 'hexapod_controller_imu_position')
+
+    bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_imu_position.hpp')

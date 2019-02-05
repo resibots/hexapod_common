@@ -35,7 +35,8 @@ namespace hexapod_controller {
         HexapodControllerImu(const std::vector<double>& ctrl, std::vector<int> broken_legs)
             : _broken_legs(broken_legs)
         {
-            int legs_number = 6;
+
+            int legs_number = 6 - _broken_legs.size();
             _error.resize(legs_number * 3 + 6, 0.0);
             _error_derivated.resize(legs_number * 3 + 6, 0.0);
             _error_integrated.resize(legs_number * 3 + 6, 0.0);
@@ -165,7 +166,8 @@ namespace hexapod_controller {
             std::vector<float> kpitch_ = {10, 0, -10, -10, 0, 10};
             //{1.4, 0, -1.4, -1.4, 0, 1.4};
             std::vector<float> kroll_ = {10, 10, 10, -10, -10, -10};
-
+            int leg = 0;
+            int index_leg = 0;
             //  assert(_controller.size() == 36);
 
             //bool is_broken;
@@ -174,25 +176,101 @@ namespace hexapod_controller {
 
             int num_leg = 6;
 
-            for (int i = 0; i < num_leg; i++) {
-                _error[i * 3 + 6] = joint(i * 3 + 6) - angles(i * 3 + 6); // +6 offset CoM
-                _error_derivated[i * 3 + 6] = (_error[i * 3 + 6] - _error_prev[i * 3 + 6]) / loop_rate;
-                _error_integrated[i * 3 + 6] += _error[i * 3 + 6];
+            for (size_t i = 0; i < 18; i += 3) {
+                for (size_t j = 0; j < _broken_legs.size(); j++) {
+                    if (leg == _broken_legs[j]) {
+                        leg++;
 
-                command_final.push_back(-_kp * _error[i * 3 + 6]);
+                        if (_broken_legs.size() > j + 1 && _broken_legs[j + 1] != leg)
+                            break;
+                    }
+                }
 
-                _error[3 * i + 7] = joint(3 * i + 7) - angles(3 * i + 7);
-                _error_derivated[3 * i + 7] = (_error[3 * i + 7] - _error_prev[3 * i + 7]) / loop_rate;
-                _error_integrated[3 * i + 7] += _error[3 * i + 7];
+                switch (leg) {
+                case 0:
 
-                command_final.push_back(-_kp * _error[3 * i + 7] + kpitch_[i] * pitch + kroll_[i] * roll);
+                    _error[index_leg * 3 + 6] = joint(index_leg * 3 + 6) - angles(index_leg * 3 + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[index_leg * 3 + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[0] * pitch + kroll_[0] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[0] * pitch + kroll_[0] * roll);
+                    index_leg++;
+                    break;
+                case 1:
 
-                _error[3 * i + 8] = joint(3 * i + 8) - angles(3 * i + 8);
-                _error_derivated[3 * i + 8] = (_error[3 * i + 8] - _error_prev[3 * i + 8]) / loop_rate;
-                _error_integrated[3 * i + 8] += _error[3 * i + 8];
+                    _error[index_leg * 3 + 6] = joint(index_leg * 3 + 6) - angles(index_leg * 3 + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[index_leg * 3 + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[1] * pitch + kroll_[1] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[1] * pitch + kroll_[1] * roll);
+                    index_leg++;
+                    break;
+                case 2:
 
-                command_final.push_back(-_kp * _error[3 * i + 8] + kpitch_[i] * pitch + kroll_[i] * roll);
+                    _error[index_leg * 3 + 6] = joint(index_leg * 3 + 6) - angles(index_leg * 3 + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[index_leg * 3 + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[2] * pitch + kroll_[2] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[2] * pitch + kroll_[2] * roll);
+                    index_leg++;
+                    break;
+                case 3:
+
+                    _error[3 * index_leg + 6] = joint(3 * index_leg + 6) - angles(3 * index_leg + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[3 * index_leg + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[3] * pitch + kroll_[3] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[3] * pitch + kroll_[3] * roll);
+                    index_leg++;
+                    break;
+                case 4:
+
+                    _error[index_leg * 3 + 6] = joint(index_leg * 3 + 6) - angles(index_leg * 3 + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[index_leg * 3 + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[4] * pitch + kroll_[4] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[4] * pitch + kroll_[4] * roll);
+                    index_leg++;
+                    break;
+                case 5:
+
+                    _error[index_leg * 3 + 6] = joint(index_leg * 3 + 6) - angles(index_leg * 3 + 6); // +6 offset CoM
+                    command_final.push_back(-_kp * _error[index_leg * 3 + 6]);
+                    _error[3 * index_leg + 7] = joint(3 * index_leg + 7) - angles(3 * index_leg + 7);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 7] + kpitch_[5] * pitch + kroll_[5] * roll);
+                    _error[3 * index_leg + 8] = joint(3 * index_leg + 8) - angles(3 * index_leg + 8);
+                    command_final.push_back(-_kp * _error[3 * index_leg + 8] + kpitch_[5] * pitch + kroll_[5] * roll);
+                    index_leg++;
+                    break;
+                }
+
+                ++leg;
             }
+            // for (int i = 0; i < num_leg; i++) {
+            //
+            //     _error[i * 3 + 6] = joint(i * 3 + 6) - angles(i * 3 + 6); // +6 offset CoM
+            //     _error_derivated[i * 3 + 6] = (_error[i * 3 + 6] - _error_prev[i * 3 + 6]) / loop_rate;
+            //     _error_integrated[i * 3 + 6] += _error[i * 3 + 6];
+            //
+            //     command_final.push_back(-_kp * _error[i * 3 + 6]);
+            //
+            //     _error[3 * i + 7] = joint(3 * i + 7) - angles(3 * i + 7);
+            //     _error_derivated[3 * i + 7] = (_error[3 * i + 7] - _error_prev[3 * i + 7]) / loop_rate;
+            //     _error_integrated[3 * i + 7] += _error[3 * i + 7];
+            //
+            //     command_final.push_back(-_kp * _error[3 * i + 7] + kpitch_[i] * pitch + kroll_[i] * roll);
+            //
+            //     _error[3 * i + 8] = joint(3 * i + 8) - angles(3 * i + 8);
+            //     _error_derivated[3 * i + 8] = (_error[3 * i + 8] - _error_prev[3 * i + 8]) / loop_rate;
+            //     _error_integrated[3 * i + 8] += _error[3 * i + 8];
+            //
+            //     command_final.push_back(-_kp * _error[3 * i + 8] + kpitch_[i] * pitch + kroll_[i] * roll);
+            // }
 
             return command_final;
         }
