@@ -17,13 +17,26 @@ namespace hexapod_controller {
     public:
         typedef std::array<double, ARRAY_DIM> array_t;
 
+        /**
+* \brief create an object HexapodControllerSimple
+*/
         HexapodControllerSimple() {}
+
+        /**
+* \brief create an object HexapodControllerSimple
+* \param const std::vector<double>& ctrl a vector of size 36 here, which are the parameter extract from map-elites.
+* \param std::vector<int> broken_legs a vector containing the number of different broken legs
+*/
         HexapodControllerSimple(const std::vector<double>& ctrl, std::vector<int> broken_legs)
             : _broken_legs(broken_legs)
         {
             set_parameters(ctrl);
         }
 
+        /**
+* \brief set parameters for controller
+* \param const std::vector<double>& ctrl a vector of size 36 here, which are the parameter extract from map-elites.
+*/
         void set_parameters(const std::vector<double>& ctrl)
         {
             assert(ctrl.size() == 36);
@@ -62,21 +75,38 @@ namespace hexapod_controller {
             _legs5commands.push_back(_control_signal(ctrl[33], ctrl[34], ctrl[35]));
         }
 
+        /**
+* \brief get parameters
+* \return std::vector<double>& _controller which are controller parameters.
+*/
         const std::vector<double>& parameters() const
         {
             return _controller;
         }
 
+        /**
+* \brief set broken legs
+* \param std::vector<int> broken_legs a vector of different broken leg number
+*/
         void set_broken(const std::vector<int> broken_legs)
         {
             _broken_legs = broken_legs;
         }
 
+        /**
+* \brief get broken legs
+* \return std::vector<int> broken_legs a vector of different broken leg number
+*/
         const std::vector<int>& broken_legs() const
         {
             return _broken_legs;
         }
 
+        /**
+* \brief compute trajectory for each motors
+* \param double t which is  the current time
+* \return std::vector<double> angles, different angles to apply at time t.
+*/
         std::vector<double> pos(double t) const
         {
             assert(_controller.size() == 36);
@@ -140,6 +170,14 @@ namespace hexapod_controller {
         /**
             All parameters should have a value between 0 and 1.
         **/
+
+        /**
+* \brief compute a control signal for each motors, here a sinusoidale square wave
+* \param double amplitude which is  the sinus amplitude
+* \param double phase which is the sinus phase
+* \param double duty_cycle which is the time where the command position saturate
+* \return array_t final_command, final command to apply (position)
+*/
         array_t _control_signal(double amplitude, double phase, double duty_cycle) const
         {
             array_t temp;
@@ -198,14 +236,16 @@ namespace hexapod_controller {
             return final_command;
         }
 
+        /*!  legs commands  */
         std::vector<array_t> _legs0commands;
         std::vector<array_t> _legs1commands;
         std::vector<array_t> _legs2commands;
         std::vector<array_t> _legs3commands;
         std::vector<array_t> _legs4commands;
         std::vector<array_t> _legs5commands;
-
+        /*!  controller parameters  */
         std::vector<double> _controller;
+        /*!   number of broken legs  */
         std::vector<int> _broken_legs;
     };
 } // namespace hexapod_controller

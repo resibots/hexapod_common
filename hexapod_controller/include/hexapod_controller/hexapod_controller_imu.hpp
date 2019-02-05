@@ -251,26 +251,6 @@ namespace hexapod_controller {
 
                 ++leg;
             }
-            // for (int i = 0; i < num_leg; i++) {
-            //
-            //     _error[i * 3 + 6] = joint(i * 3 + 6) - angles(i * 3 + 6); // +6 offset CoM
-            //     _error_derivated[i * 3 + 6] = (_error[i * 3 + 6] - _error_prev[i * 3 + 6]) / loop_rate;
-            //     _error_integrated[i * 3 + 6] += _error[i * 3 + 6];
-            //
-            //     command_final.push_back(-_kp * _error[i * 3 + 6]);
-            //
-            //     _error[3 * i + 7] = joint(3 * i + 7) - angles(3 * i + 7);
-            //     _error_derivated[3 * i + 7] = (_error[3 * i + 7] - _error_prev[3 * i + 7]) / loop_rate;
-            //     _error_integrated[3 * i + 7] += _error[3 * i + 7];
-            //
-            //     command_final.push_back(-_kp * _error[3 * i + 7] + kpitch_[i] * pitch + kroll_[i] * roll);
-            //
-            //     _error[3 * i + 8] = joint(3 * i + 8) - angles(3 * i + 8);
-            //     _error_derivated[3 * i + 8] = (_error[3 * i + 8] - _error_prev[3 * i + 8]) / loop_rate;
-            //     _error_integrated[3 * i + 8] += _error[3 * i + 8];
-            //
-            //     command_final.push_back(-_kp * _error[3 * i + 8] + kpitch_[i] * pitch + kroll_[i] * roll);
-            // }
 
             return command_final;
         }
