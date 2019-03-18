@@ -200,9 +200,9 @@ namespace hexapod_controller {
             _legs4center.clear();
             _legs5center.clear();
 
-            std::vector<float> Kpitch_ = {1, 0, -1, -1, 0, 1};
+            std::vector<float> Kpitch_ = {0.5, 0, -0.5, -0.5, 0, 0.5};
             //{1.4, 0, -1.4, -1.4, 0, 1.4};
-            std::vector<float> Kroll_ = {1, 1, 1, -1, -1, -1};
+            std::vector<float> Kroll_ = {0.5, 0.5, 0.5, -0.5, -0.5, -0.5};
 
             _legs0center.push_back(M_PI_4 / 2);
             _legs0center.push_back(M_PI_4 + Kpitch_[0] * pitch + Kroll_[0] * roll);

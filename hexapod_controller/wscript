@@ -65,6 +65,7 @@ def build(bld):
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_cartesian.hpp')
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/cpg.hpp')
+    bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/cpg_open_loop.hpp')
 
     bld.program(features = 'cxx',
                 install_path = None,
@@ -83,3 +84,12 @@ def build(bld):
                 target = 'hexapod_controller_imu_position')
 
     bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/hexapod_controller_imu_position.hpp')
+
+    bld.program(features = 'cxx',
+                install_path = None,
+                source = 'src/cpg_open_loop.cpp',
+                includes = './include',
+                uselib = 'BOOST BOOST_SYSTEM BOOST_REGEX EIGEN ',
+                target = 'cpg_open_loop')
+
+    bld.install_files('${PREFIX}/include/hexapod_controller', 'include/hexapod_controller/cpg_open_loop.hpp')
