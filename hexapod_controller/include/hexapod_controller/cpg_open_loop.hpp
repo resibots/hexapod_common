@@ -152,6 +152,7 @@ namespace hexapod_controller {
         std::vector<float> cx0 = {0.01, 0.0, 0.0, 0.01, 0.01, 0},
         std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8}, float kp = 1, float kd = 0.0)
     {
+        std::cout << "inside the constructor CpgOpenLoop" << std::endl;
         legs_number_ = legs_number;
         w_ = w;
         gammacpg_ = gammacpg;
@@ -167,8 +168,7 @@ namespace hexapod_controller {
         cx0_ = cx0;
         cy0_ = cy0;
         K_ = CpgOpenLoop::createK();
-        kp_
-            = kp;
+        kp_ = kp;
         kd_ = kd;
 
         safety_pos_thresh_ = 1;

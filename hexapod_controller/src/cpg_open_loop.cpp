@@ -6,9 +6,9 @@ using namespace hexapod_controller;
 int main()
 {
     CpgOpenLoop controller;
-    controller.computeTrajectory(5);
+    controller.computeTrajectory(20);
     std::vector<double> angles;
-    for (double t = 0.0; t <= 0.2; t += 0.1)
+    for (double t = 0.0; t <= 2; t += 0.1)
         angles = controller.pos(t);
     angles.clear();
 
