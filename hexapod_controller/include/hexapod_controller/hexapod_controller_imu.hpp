@@ -163,9 +163,9 @@ namespace hexapod_controller {
             for (unsigned int i = 0; i < _error.size(); i++) {
                 _error_prev[i] = _error[i];
             }
-            std::vector<float> kpitch_ = {10, 0, -10, -10, 0, 10};
+            std::vector<float> kpitch_ = {5, 0, -5, -5, 0, 5};
             //{1.4, 0, -1.4, -1.4, 0, 1.4};
-            std::vector<float> kroll_ = {10, 10, 10, -10, -10, -10};
+            std::vector<float> kroll_ = {5, 5, 5, -5, -5, -5};
             int leg = 0;
             int index_leg = 0;
             //  assert(_controller.size() == 36);

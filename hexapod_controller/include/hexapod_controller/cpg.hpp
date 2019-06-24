@@ -134,22 +134,16 @@ namespace cpg {
         std::vector<double> ctrl_;
     };
 
-    // CPG::CPG(int legs_number = 6, float w = 5, float gammacpg = 7, float lambda = 14, float a = 0.2,
-    //     float b = 0.5, int d = 2, float euler_dt = 0.001, float rk_dt = 0.01,
-    //     std::vector<std::vector<float>> K = createK(), std::vector<float> cx0 = {0.01, 0.01, 0, 0, 0.01, 0.01},
-    //     std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8} // namespace cpg
-    //     ) // 10 ou 100
-
-    CPG::CPG(int legs_number = 6, float w = 0.5, float gammacpg = 0.7, float lambda = 0.14, float a = 0.2,
-        float b = 0.5, int d = 2, float euler_dt = 0.001, float rk_dt = 0.01,
-        std::vector<std::vector<float>> K = createK(), std::vector<float> cx0 = {0.01, 0.0, 0.0, 0.01, 0.01, 0},
-        std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8}, float kp = 1, float kd = 0.0,
+    CPG::CPG(int legs_number = 6, float w = 0.00001, float gammacpg = 0.004, float lambda = 0.0025, float a = M_PI / 18,
+        float b = M_PI / 6, int d = 2, float euler_dt = 0.001, float rk_dt = 0.02,
+        std::vector<std::vector<float>> K = createK(), std::vector<float> cx0 = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+        std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, M_PI / 8, M_PI / 8, M_PI / 8}, float kp = 1, float kd = 0.0,
         std::vector<float> kpitch = {1.4, 0, -1.4, -1.4, 0, 1.4}, std::vector<float> kroll = {1.4, 1.4, 1.4, -1.4, -1.4, -1.4}) // OXO
 
     // CPG::CPG(int legs_number = 6, float w = M_PI / 2, float gammacpg = 0.7, float lambda = 0.14, float a = 0.2,
     //     float b = 0.4, int d = 2, float euler_dt = 0.001, float rk_dt = 0.01,
     //     std::vector<std::vector<float>> K = createK(), std::vector<float> cx0 = {0.01, 0.0, 0.0, 0.01, 0.01, 0},
-    //     std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8}, float kp = 1, float kd = 0.0,
+    //     std::vector<float> cy0 = {-M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8, -M_PI / 8}, float kp = 1000, float kd = 0.0,
     //     std::vector<float> kpitch = {1.4, 0, -1.4, -1.4, 0, 1.4}, std::vector<float> kroll = {1.4, 1.4, 1.4, -1.4, -1.4, -1.4}) // 1
 
     // CPG::CPG(int legs_number = 6, float w = 3 * 5, float gammacpg = 3 * 7, float lambda = 3 * 14, float a = 0.2,
@@ -207,22 +201,23 @@ namespace cpg {
     CPG::computeXYdot(std::vector<float> X, std::vector<float> Y)
     {
         std::vector<std::pair<float, float>> XYdot;
-        float x, y, Hcx, dHx, Hcy, dHy, Hc, xdot, ydot, Kterm;
-
+        float x, y, Hcx, dHcx, Hcy, dHcy, Hc, xdot, ydot, Kterm;
+        // std::cout << "K size : " << std::endl;
+        // std::cout << K_.size() << std::endl;
         for (unsigned int i = 0; i < K_.size(); i++) {
             x = X[i];
             y = Y[i];
             Hcx = pow((x - cx_[i]) / a_, d_); /* x part of Hc*/
-            dHx = d_ * pow((1 / a_), d_) * pow(x, d_ - 1); /* x derivative of Hcx*/
+            dHcx = d_ * pow((1 / a_), d_) * pow(x - cx_[i], d_ - 1); /* x derivative of Hcx*/
 
             Hcy = pow((y - cy_[i]) / b_, d_); /* y part of Hc*/
-            dHy = d_ * pow((1 / b_), d_) * pow(y, d_ - 1); /* y derivative of Hcx*/
+            dHcy = d_ * pow((1 / b_), d_) * pow(y - cy_[i], d_ - 1); /* y derivative of Hcx*/
 
             Hc = Hcx + Hcy;
 
-            xdot = -w_ * dHy + gammacpg_ * (1 - Hc) * dHx;
+            xdot = -w_ * dHcy + gammacpg_ * (1 - Hc) * dHcx;
             // std::cout << xdot << std::endl;
-            ydot = w_ * dHx + gammacpg_ * (1 - Hc) * dHy;
+            ydot = w_ * dHcx + gammacpg_ * (1 - Hc) * dHcy;
 
             Kterm = 0; /* coupling term which needs to be added to ydot*/
             for (unsigned int j = 0; j < K_[i].size(); j++) {
@@ -355,32 +350,36 @@ namespace cpg {
 
         for (int i = 0; i < XYdot.size(); i++) {
             /*Integrate XYdot*/
-            std::pair<float, float> xy = CPG::RK4(Xcommand_[i], Ycommand_[i], XYdot[i]);
-            Xcommand_[i] = xy.first;
-            // std::cout << "x " << xy.first << std::endl;
-            Ycommand_[i] = xy.second;
+            std::cout << "Xdot Ydot :" << std::endl;
+            std::cout << XYdot[i].first << " " << XYdot[i].second << std::endl;
 
-            if (xy.first > safety_pos_thresh_) {
-                Xcommand_[i] = safety_pos_thresh_;
-            }
-            if (xy.first < -safety_pos_thresh_) {
-                Xcommand_[i] = -safety_pos_thresh_;
-            }
-            if (xy.second > safety_pos_thresh_) {
-                Ycommand_[i] = safety_pos_thresh_;
-            }
-            if (xy.second < -safety_pos_thresh_) {
-                Ycommand_[i] = -safety_pos_thresh_;
-            }
-            // std::cout << std::abs(xy.first) << " " << std::abs(xy.second) << std::endl;
+            std::pair<float, float> xy = CPG::euler(Xcommand_[i], Ycommand_[i], XYdot[i]); //RK4
+            Xcommand_[i] = xy.first; // * (1 / 57.2959);
+            // std::cout << "x " << xy.first << std::endl;
+            Ycommand_[i] = xy.second; // * (1 / 57.2959);
+            //
+            // if (xy.first > safety_pos_thresh_) {
+            //     Xcommand_[i] = safety_pos_thresh_;
+            // }
+            // if (xy.first < -safety_pos_thresh_) {
+            //     Xcommand_[i] = -safety_pos_thresh_;
+            // }
+            // if (xy.second > safety_pos_thresh_) {
+            //     Ycommand_[i] = safety_pos_thresh_;
+            // }
+            // if (xy.second < -safety_pos_thresh_) {
+            //     Ycommand_[i] = -safety_pos_thresh_;
+            // }
+            std::cout << "X Y :" << std::endl;
+            std::cout << Xcommand_[i] << " " << Ycommand_[i] << std::endl;
             // if ((std::abs(xy.first) > cx0_[i] + 4 * std::abs(a_)) || (std::abs(xy.second) > cy0_[i] + 4 * std::abs(b_))) {
             //     std::cout << "INTEGRATION HAS DIVERGED 2 : reboot the node and use a bigger loop rate"
             //               << std::endl;
             //     integration_has_diverged_ = true;
             // }
             if (std::isnan(xy.first) || std::isnan(xy.second)) {
-                // std::cout << "INTEGRATION HAS DIVERGED : reboot the node and use a bigger loop rate"
-                // << std::endl;
+                std::cout << "INTEGRATION HAS DIVERGED : reboot the node and use a bigger loop rate"
+                          << std::endl;
                 integration_has_diverged_ = true;
             }
         }
@@ -393,21 +392,22 @@ namespace cpg {
     {
         std::vector<float> command_final;
         if (integration_has_diverged_ == false) {
+            double gain = 100;
             for (unsigned int i = 0; i < legs_number_; i++) {
 
-                error_[i] = (joints[i] - sign_[i] * Xcommand_[leg_map_to_paper_[i]]);
+                error_[i] = (joints[i] - sign_[i] * Xcommand_[leg_map_to_paper_[i]] * gain);
                 error_derivated_[i] = (error_[i] - error_prev_[i]) / loop_rate_;
                 error_integrated_[i] += error_[i];
 
                 command_final.push_back(-kp_ * error_[i]); // - kd_ * error_derivated_[i]);
 
-                error_[6 + i] = (joints[6 + i] - Ycommand_[leg_map_to_paper_[i]]);
+                error_[6 + i] = (joints[6 + i] - Ycommand_[leg_map_to_paper_[i]] * gain);
                 error_derivated_[6 + i] = (error_[6 + i] - error_prev_[6 + i]) / loop_rate_;
                 error_integrated_[6 + i] += error_[6 + i];
 
                 command_final.push_back(-kp_ * error_[6 + i]); // - kd_ * error_derivated_[6 + i] + kpitch_[i] * pitch + kroll_[i] * roll);
 
-                error_[12 + i] = (joints[12 + i] - Ycommand_[leg_map_to_paper_[i]]);
+                error_[12 + i] = (joints[12 + i] - Ycommand_[leg_map_to_paper_[i]] * gain);
                 error_derivated_[12 + i] = (error_[12 + i] - error_prev_[12 + i]) / loop_rate_;
                 error_integrated_[12 + i] += error_[12 + i];
                 // std::cout << "error " << (-kp_ * error_[i]) << std::endl;
@@ -427,7 +427,7 @@ namespace cpg {
 
     void CPG::set_parameters(const std::vector<double>& ctrl)
     {
-        // std::cout << "aaaaa " << ctrl.size() << std::endl;
+
         if (ctrl.size() == 3) {
             w_ = ctrl[0];
             lambda_ = ctrl[1];
@@ -453,15 +453,17 @@ namespace cpg {
 
             std::vector<std::vector<float>> Kk;
             std::vector<float> k;
-            for (int i = 0; i < ctrl.size(); i++) {
+            for (int i = 0; i < ctrl.size() + 1; i++) {
                 if (((i % 6) == 0) && i != 0) {
                     Kk.push_back(k);
                     k.clear();
                 }
+                std::cout << ctrl[i] << std::endl;
                 k.push_back(ctrl[i]);
             }
 
             K_ = Kk;
+
             // K_ = createK();
         }
         else if (ctrl.size() == 41) {
@@ -473,11 +475,12 @@ namespace cpg {
 
             std::vector<std::vector<float>> Kk;
             std::vector<float> k;
-            for (int i = 5; i < ctrl.size(); i++) {
+            for (int i = 5; i < ctrl.size() + 1; i++) {
                 if (((i % 6) == 0) && i != 0) {
                     Kk.push_back(k);
                     k.clear();
                 }
+
                 k.push_back(ctrl[i]);
             }
 
